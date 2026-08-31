@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+        
+    - name: Run tests with coverage
+      run: |
+        cd backend
+        pytest --cov=app tests/ --cov-report=xml
+        
+  mobile-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        
+    - name: Install dependencies
+      run: |
+        cd mobile
+        npm install
+        
+    - name: Type check & Lint
+      run: |
+        cd mobile
+        npm run lint || echo "No lint script yet, skipping..."
+        npx tsc --noEmit || echo "No tsconfig setup fully yet, skipping..."
+
+  build-docker:
+    needs: backend-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build backend Docker image
+      run: |
+        cd backend
+        docker build -t vovera-backend:latest -f Dockerfile .

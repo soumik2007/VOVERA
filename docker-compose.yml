@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEPLOYMENT_PHASE=consumer
+      - DATABASE_URL=postgresql://vovera:voverapass@postgres:5432/voveradb
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=supersecretkey_change_in_prod
+      - ENCRYPTION_KEY=N0Y4X2s1djhrOVRyU1l4dThhOF85M1J3Z280SGRDZm8= 
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=vovera
+      - POSTGRES_PASSWORD=voverapass
+      - POSTGRES_DB=voveradb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
