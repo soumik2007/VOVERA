@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
   { path: '/',         icon: 'shield',        label: 'Dashboard' },
-  { path: '/incall',   icon: 'phone_in_talk',  label: 'Call Shield' },
   { path: '/forensics',icon: 'graphic_eq',     label: 'Forensics' },
   { path: '/settings', icon: 'tune',           label: 'Settings' },
 ];

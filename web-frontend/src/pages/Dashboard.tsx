@@ -124,6 +124,13 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3.5">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">Recent Call Activity</h2>
+            <button 
+              onClick={() => navigate('/incoming')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-xs font-medium text-slate-300"
+            >
+              <span className="material-symbols-outlined text-[14px]">ring_volume</span>
+              Simulate Call
+            </button>
           </div>
           
           {recentCalls.length === 0 ? (
