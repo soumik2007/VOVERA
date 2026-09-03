@@ -54,7 +54,7 @@ export default function Forensics() {
       {/* Universal Header (Matches Settings/Dashboard vibe) */}
       <header className="fixed top-0 w-full z-50 pt-safe bg-[#0B0E14]/85 backdrop-blur-xl border-b border-white/[0.04]">
         <div className="h-16 px-6 flex items-center max-w-lg mx-auto">
-          <span className="text-2xl text-white" style={{ fontFamily: "'Russo One', sans-serif", letterSpacing: '0.05em' }}>VOVERA</span>
+          <span className="text-2xl text-white" style={{ fontFamily: "'Bauhaus 93', sans-serif", letterSpacing: '0.05em' }}>VOVERA</span>
           <span className="ml-3 text-sm text-slate-400">Forensics</span>
         </div>
       </header>
