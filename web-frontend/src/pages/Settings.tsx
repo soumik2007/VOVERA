@@ -74,10 +74,7 @@ export default function Settings() {
             {languages.map(lang => (
               <button key={lang.name} onClick={() => setLanguage(lang.name)}
                 className="flex items-center justify-between w-full px-5 py-4 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors last:border-b-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{lang.flag}</span>
-                  <span className="text-sm text-white">{lang.name}</span>
-                </div>
+                <span className="text-xl">{lang.flag}</span>
                 {language === lang.name && (
                   <span className="material-symbols-outlined text-[#E5C365] text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 )}
