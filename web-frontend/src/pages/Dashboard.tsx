@@ -106,11 +106,6 @@ export default function Dashboard() {
                   ? 'bg-[#0B0E14] border border-[#E5C365]/50 shadow-[0_0_40px_rgba(229,195,101,0.15),inset_0_0_30px_rgba(229,195,101,0.25)]'
                   : 'bg-[#161B26] border border-white/[0.06] shadow-inner'
               }`}>
-                {/* Rotating Scanner Ring */}
-                {defenseOn && (
-                  <div className="absolute inset-1 border-[2px] border-dashed border-[#E5C365]/20 rounded-full animate-[spin_8s_linear_infinite]" />
-                )}
-
                 <span className={`material-symbols-outlined transition-all duration-500 relative z-20 ${
                   defenseOn ? 'text-[#E5C365] drop-shadow-[0_0_12px_rgba(229,195,101,0.8)]' : 'text-slate-500'
                 }`} style={{ fontSize: '32px', fontVariationSettings: "'FILL' 1" }}>
