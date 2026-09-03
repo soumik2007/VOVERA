@@ -146,7 +146,6 @@ export default function IncomingCall() {
         </div>
       )}
       
-      <BottomNav />
     </div>
   );
 }

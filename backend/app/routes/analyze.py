@@ -98,7 +98,7 @@ def get_call_history(limit: int = 10, db: Session = Depends(get_db)):
         "id": c.id,
         "caller_hash": c.caller_hash, # Using hash in place of real number for privacy
         "risk_score": c.risk_score,
-        "created_at": c.created_at,
+        "created_at": c.created_at.isoformat() + "Z" if c.created_at else None,
         "is_safe": c.risk_score < 50
     } for c in calls]
 
@@ -116,5 +116,5 @@ def get_forensics_report(call_id: int, db: Session = Depends(get_db)):
         "risk_score": call.risk_score,
         "signals": call.signals,
         "report_text": call.report_text,
-        "created_at": call.created_at
+        "created_at": call.created_at.isoformat() + "Z" if call.created_at else None
     }

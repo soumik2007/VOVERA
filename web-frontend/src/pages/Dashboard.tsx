@@ -136,8 +136,8 @@ export default function Dashboard() {
               {recentCalls.map(call => (
                 <button
                   key={call.id}
-                  onClick={() => navigate(call.is_safe ? '#' : `/forensics?id=${call.id}`)}
-                  className="flex items-center justify-between p-4 rounded-xl bg-[#141824] border border-white/[0.05] hover:border-white/[0.1] transition-all text-left w-full"
+                  onClick={() => { if (!call.is_safe) navigate(`/forensics?id=${call.id}`); }}
+                  className={`flex items-center justify-between p-4 rounded-xl bg-[#141824] border border-white/[0.05] transition-all text-left w-full ${!call.is_safe ? 'hover:border-white/[0.1] cursor-pointer' : 'cursor-default'}`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${call.is_safe ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
