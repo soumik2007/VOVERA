@@ -127,6 +127,16 @@ export default function InCall() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Unverified Caller</h1>
           <p className="text-xs font-medium text-slate-400 tracking-normal">+1 (415) 890–2134</p>
+          {/* Live coaching text — tells user exactly what's happening */}
+          <p className={`text-[11px] font-medium pt-1 transition-colors duration-500 ${
+            riskStatus === 'SAFE' ? 'text-emerald-400' :
+            riskStatus === 'ANALYZING' ? 'text-amber-400' :
+            'text-red-400'
+          }`}>
+            {riskStatus === 'SAFE' ? '✓ Voice patterns look normal — keep listening' :
+             riskStatus === 'ANALYZING' ? '⚠ Anomalies detected — analysis escalating' :
+             '🚨 Synthetic voice confirmed — call terminated'}
+          </p>
         </section>
 
         {/* Voice Authenticity Card */}
@@ -190,9 +200,11 @@ export default function InCall() {
             </button>
           </div>
           <button onClick={() => { wsRef.current?.close(); navigate('/'); }}
-            className="w-full h-14 rounded-2xl bg-red-600 hover:bg-red-500 active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2.5 shadow-lg shadow-red-600/25 transition-all">
+            className={`w-full h-14 rounded-2xl active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2.5 shadow-lg transition-all ${
+              riskStatus === 'DANGER' ? 'bg-red-700 hover:bg-red-600 shadow-red-700/30' : 'bg-red-600 hover:bg-red-500 shadow-red-600/25'
+            }`}>
             <span className="material-symbols-outlined text-[22px]">call_end</span>
-            <span>End Call</span>
+            <span>{riskStatus === 'DANGER' ? 'End & Report Threat' : 'End Call'}</span>
           </button>
         </section>
       </main>
