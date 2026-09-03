@@ -49,18 +49,24 @@ export default function Forensics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c0e13] text-white flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#e5c365] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-[#0c0e13] text-white flex flex-col">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-2 border-[#e5c365] border-t-transparent rounded-full"></div>
+        </div>
+        <BottomNav />
       </div>
     );
   }
 
   if (!report) {
     return (
-      <div className="min-h-screen bg-[#0c0e13] text-white flex flex-col items-center justify-center px-6 text-center gap-4">
-        <span className="material-symbols-outlined text-slate-500 text-5xl">find_in_page</span>
-        <p className="text-slate-400">No forensics report found or invalid ID.</p>
-        <button onClick={() => navigate('/')} className="px-4 py-2 bg-[#2b2f3a] rounded-lg text-sm font-medium">Return Home</button>
+      <div className="min-h-screen bg-[#0c0e13] text-white flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4">
+          <span className="material-symbols-outlined text-slate-500 text-5xl">find_in_page</span>
+          <p className="text-slate-400">Select a scan from your Dashboard to view forensics.</p>
+          <button onClick={() => navigate('/')} className="px-4 py-2 bg-[#2b2f3a] rounded-lg text-sm font-medium">Return Home</button>
+        </div>
+        <BottomNav />
       </div>
     );
   }
