@@ -15,11 +15,11 @@ export default function Settings() {
   );
 
   const languages = [
-    { name: 'English', flag: '🇬🇧' },
-    { name: 'Hindi', flag: '🇮🇳' },
-    { name: 'Spanish', flag: '🇪🇸' },
-    { name: 'French', flag: '🇫🇷' },
-    { name: 'Arabic', flag: '🇸🇦' },
+    { id: 'en', name: 'English', nativeName: 'English' },
+    { id: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
+    { id: 'es', name: 'Spanish', nativeName: 'Español' },
+    { id: 'fr', name: 'French', nativeName: 'Français' },
+    { id: 'ar', name: 'Arabic', nativeName: 'العربية' },
   ];
 
   return (
@@ -69,12 +69,20 @@ export default function Settings() {
 
         {/* Language */}
         <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-[#141824]">
-          <h3 className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 px-5 pt-5 pb-3">Language</h3>
+          <div className="px-5 pt-5 pb-3">
+            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Language</h3>
+            <p className="text-xs text-slate-500 mt-1">Choose your local language</p>
+          </div>
           <div className="border-t border-white/[0.05]">
             {languages.map(lang => (
-              <button key={lang.name} onClick={() => setLanguage(lang.name)}
+              <button key={lang.id} onClick={() => setLanguage(lang.name)}
                 className="flex items-center justify-between w-full px-5 py-4 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors last:border-b-0">
-                <span className="text-xl">{lang.flag}</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-medium text-white">{lang.nativeName}</span>
+                  {lang.name !== lang.nativeName && (
+                    <span className="text-[10px] text-slate-500 mt-0.5">{lang.name}</span>
+                  )}
+                </div>
                 {language === lang.name && (
                   <span className="material-symbols-outlined text-[#E5C365] text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 )}
