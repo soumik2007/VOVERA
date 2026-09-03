@@ -43,7 +43,7 @@ export default function IncomingCall() {
               <span className="material-symbols-outlined text-[17px]">verified_user</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-bold tracking-wider text-[#F0F2F8] uppercase leading-none">VOVERA</span>
+              <span className="text-base text-[#F0F2F8]" style={{ fontFamily: "'Russo One', sans-serif" }}>VOVERA</span>
               <span className="text-[10px] text-[#9DA7B8] font-medium tracking-wide">Signal Shield</span>
             </div>
           </div>
