@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            obsidian: "#0B0E14",
+            onyx: "#121620",
+            surface: "#11141D",
+            "surface-subtle": "#161B26",
+            "surface-card": "#141824",
+            gold: {
+              DEFAULT: "#E5C365",
+              light: "#F5DF9E",
+              dark: "#A38532",
+              dim: "rgba(229, 195, 101, 0.12)"
+            },
+            emerald: {
+              soft: "#10B981",
+              dim: "rgba(16, 185, 129, 0.12)"
+            },
+            ruby: {
+              soft: "#F43F5E",
+              dim: "rgba(244, 63, 94, 0.12)"
+            }
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        background-color: #0B0E14;
+        color: #F1F3F7;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      body {
+        overscroll-behavior: none;
+        min-height: max(884px, 100dvh);
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 16px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 12px);
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-obsidian text-slate-100 flex flex-col min-h-screen selection:bg-gold/20 selection:text-gold-light antialiased">
+<!-- Minimalist Executive Header -->
+<header class="fixed top-0 w-full z-50 pt-safe bg-[#0B0E14]/85 backdrop-blur-xl border-b border-white/[0.04]">
+<div class="h-16 px-6 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<span class="text-xl font-bold tracking-[0.2em] text-white">VOVERA</span>
+<span class="text-[10px] tracking-wider px-2 py-0.5 rounded-full border border-gold/30 bg-gold/10 text-gold font-medium uppercase">
+            Shield Active
+          </span>
+</div>
+</div>
+<button aria-label="Executive Profile" class="relative rounded-full ring-1 ring-white/10 hover:ring-gold/40 transition-all p-0.5">
+<img alt="Tech Executive Profile" class="w-9 h-9 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1U2n7vXXhXk_1FTzhEWvVSjbq-E0XGPkO99MGu-C3fPBxsgMZOs1SSk_fQBVAtFAOboKzTH8r7Qv148-cfa-5W3HBvU1vPHlmEIIfZbwKOV1XLy0Z_WbVvV8QrkbBoHYSwtRhLi1DU59nkU1O-hJb1xV5K86nCdcQxmi2yl_Z8sD6w_49WgMm8zoIhcny1WlKxD3TCPFPB0ANEdrO4AhjPxMQD8nU8wrR9nO0Rw7LoLhUz6LMVMRCsvTKo"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-soft ring-2 ring-obsidian"></span>
+</button>
+</div>
+</header>
+<!-- Main Executive Content -->
+<main class="flex-1 w-full pt-24 pb-28 px-5 flex flex-col gap-6 max-w-lg mx-auto">
+<!-- Executive Voice Shield Status Card -->
+<div class="relative overflow-hidden rounded-2xl bg-surface-card border border-white/[0.06] p-7 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+<!-- Gentle ambient glow -->
+<div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-gold/5 blur-3xl pointer-events-none"></div>
+<div class="flex flex-col items-center text-center">
+<!-- Minimal Radial Ring Graphic -->
+<div class="relative flex items-center justify-center w-36 h-36 my-2">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="42" stroke="rgba(255,255,255,0.06)" stroke-width="3.5"></circle>
+<circle class="transition-all duration-1000" cx="50" cy="50" fill="none" r="42" stroke="url(#goldGradient)" stroke-dasharray="264" stroke-dashoffset="18" stroke-linecap="round" stroke-width="3.5"></circle>
+<defs>
+<lineargradient id="goldGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#E5C365"></stop>
+<stop offset="100%" stop-color="#A38532"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-gold text-[28px] mb-0.5">verified_user</span>
+<span class="text-xs font-medium tracking-wider text-slate-400 uppercase">Protected</span>
+</div>
+</div>
+<h1 class="text-xl font-semibold text-white tracking-tight mt-2">Voice Shield Active</h1>
+<p class="text-xs text-slate-400 mt-1 max-w-[220px]">Real-time neural synthesis detection defending executive calls</p>
+<!-- Understated Metrics Separation -->
+<div class="grid grid-cols-2 gap-4 w-full mt-7 pt-6 border-t border-white/[0.06]">
+<div class="flex flex-col items-center">
+<span class="text-2xl font-light text-white tracking-tight">42</span>
+<span class="text-[11px] uppercase tracking-wider text-slate-400 mt-0.5 font-medium">Threats Prevented</span>
+</div>
+<div class="flex flex-col items-center border-l border-white/[0.06]">
+<span class="text-2xl font-light text-gold tracking-tight">99.4%</span>
+<span class="text-[11px] uppercase tracking-wider text-slate-400 mt-0.5 font-medium">Verified Accuracy</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Simple Automated Voice Defense Switch -->
+<div class="flex items-center justify-between p-5 rounded-xl bg-surface-subtle border border-white/[0.06]">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center text-gold">
+<span class="material-symbols-outlined text-[20px]">security</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-white">Automated Voice Defense</span>
+<span class="text-xs text-emerald-soft flex items-center gap-1 mt-0.5 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-soft inline-block"></span>
+            Active &amp; Monitoring
+          </span>
+</div>
+</div>
+<button aria-label="Toggle Automated Voice Defense" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-gold transition-colors duration-200 ease-in-out focus:outline-none" id="toggle-defense">
+<span class="inline-block h-5 w-5 transform translate-x-5.5 translate-y-0.5 rounded-full bg-obsidian shadow transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<!-- Recent Call Activity Section -->
+<div class="flex flex-col gap-3.5">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-semibold uppercase tracking-widest text-slate-400">Recent Call Activity</h2>
+<span class="text-xs text-slate-500 font-medium">Last 24 Hours</span>
+</div>
+<!-- Clean List Container -->
+<div class="flex flex-col gap-2.5">
+<!-- Call Item 1: Threat Prevented -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-card border border-white/[0.05] hover:border-white/[0.1] transition-all">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 shrink-0 rounded-full bg-ruby-dim text-ruby-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">phone_disabled</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-medium text-white truncate">+1 (415) 890-2134</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-ruby-dim text-ruby-soft">
+                  AI Impersonation Blocked
+                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="text-xs text-slate-400">12m ago</span>
+<span class="text-[11px] text-slate-500 mt-0.5">Blocked</span>
+</div>
+</div>
+<!-- Call Item 2: Verified Human Executive -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-card border border-white/[0.05] hover:border-white/[0.1] transition-all">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 shrink-0 rounded-full bg-emerald-dim text-emerald-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">call</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-medium text-white truncate">David Miller</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-dim text-emerald-soft">
+                  Verified Authentic
+                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="text-xs text-slate-400">1h ago</span>
+<span class="text-[11px] text-slate-500 mt-0.5">4m 12s</span>
+</div>
+</div>
+<!-- Call Item 3: Suspicious Spoof Neutralized -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-card border border-white/[0.05] hover:border-white/[0.1] transition-all">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 shrink-0 rounded-full bg-ruby-dim text-ruby-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">phone_disabled</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-medium text-white truncate">+1 (202) 555-0199</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-ruby-dim text-ruby-soft">
+                  AI Impersonation Blocked
+                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="text-xs text-slate-400">3h ago</span>
+<span class="text-[11px] text-slate-500 mt-0.5">Intercepted</span>
+</div>
+</div>
+<!-- Call Item 4: Sarah Jenkins Verified -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-card border border-white/[0.05] hover:border-white/[0.1] transition-all">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 shrink-0 rounded-full bg-emerald-dim text-emerald-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">call</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-medium text-white truncate">Sarah Jenkins</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-dim text-emerald-soft">
+                  Verified Authentic
+                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="text-xs text-slate-400">5h ago</span>
+<span class="text-[11px] text-slate-500 mt-0.5">1m 48s</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Luxury Minimal Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe bg-[#0B0E14]/90 backdrop-blur-xl border-t border-white/[0.05]">
+<div class="h-16 px-6 max-w-lg mx-auto flex items-center justify-around">
+<a aria-current="page" class="flex flex-col items-center justify-center py-1 text-gold transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="text-[10px] tracking-wider uppercase font-semibold mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">phone_in_talk</span>
+<span class="text-[10px] tracking-wider uppercase font-medium mt-1">Call Shield</span>
+</a>
+<a class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">graphic_eq</span>
+<span class="text-[10px] tracking-wider uppercase font-medium mt-1">Forensics</span>
+</a>
+<a class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">tune</span>
+<span class="text-[10px] tracking-wider uppercase font-medium mt-1">Settings</span>
+</a>
+</div>
+</nav>
+<script>
+    // Minimal Luxury Switch Behavior
+    const toggleBtn = document.getElementById('toggle-defense');
+    if (toggleBtn) {
+      let active = true;
+      toggleBtn.addEventListener('click', () => {
+        active = !active;
+        const knob = toggleBtn.querySelector('span');
+        if (active) {
+          toggleBtn.classList.remove('bg-white/10');
+          toggleBtn.classList.add('bg-gold');
+          knob.classList.remove('translate-x-0.5');
+          knob.classList.add('translate-x-5.5');
+        } else {
+          toggleBtn.classList.remove('bg-gold');
+          toggleBtn.classList.add('bg-white/10');
+          knob.classList.remove('translate-x-5.5');
+          knob.classList.add('translate-x-0.5');
+        }
+      });
+    }
+  </script>
+</body></html>

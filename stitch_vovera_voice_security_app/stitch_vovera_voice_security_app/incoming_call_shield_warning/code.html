@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#0B0E14",
+            "surface-dim": "#07090D",
+            "surface-container-low": "#11141C",
+            "surface-container": "#161B26",
+            "surface-container-high": "#1E2330",
+            "surface-container-highest": "#282E3E",
+            "primary": "#FFE08D",
+            "primary-container": "#E5C365",
+            "on-primary": "#3D2F00",
+            "secondary": "#7BD0FF",
+            "on-secondary": "#00354A",
+            "secondary-container": "#00A6E0",
+            "error": "#FF6B6B",
+            "error-container": "#4A1016",
+            "on-surface": "#F0F2F8",
+            "on-surface-variant": "#9DA7B8",
+            "outline": "#323A4D"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"]
+          },
+          boxShadow: {
+            'glow-threat': '0 0 60px -10px rgba(239, 68, 68, 0.18)',
+            'glow-amber': '0 0 40px -8px rgba(255, 224, 141, 0.15)',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        background-color: #0B0E14;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 16px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 12px);
+      }
+    }
+    ::-webkit-scrollbar { display: none; }
+
+    @keyframes barPulse {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.6; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+    .wave-bar {
+      animation: barPulse 1.4s ease-in-out infinite;
+      transform-origin: bottom;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen selection:bg-primary selection:text-on-primary">
+<!-- Ambient Top Glow for Threat Level -->
+<div class="fixed top-0 left-1/2 -translate-x-1/2 w-[340px] h-[340px] bg-red-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+<!-- Minimal Header -->
+<header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl border-b border-white/[0.04]">
+<div class="h-14 px-6 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high border border-white/10 flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[17px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold tracking-wider text-on-surface uppercase leading-none">VOVERA</span>
+<span class="text-[10px] text-on-surface-variant font-medium tracking-wide">Signal Shield</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/20">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+<span class="text-[11px] font-semibold text-red-400 tracking-wide uppercase">Call Intercept</span>
+</div>
+<button class="w-8 h-8 rounded-full border border-white/10 overflow-hidden hover:opacity-80 transition-opacity ml-1 focus:outline-none">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh3OWiXLYCnWJwI252McbXNLhAPjSZOOZFv0joXKpskfm_u8pRu3EmxwwtK3t3X0FozGZdANzgowdQrqUvGwT-xfWhImzzasG-Egu1AM8ebkfFejarKYsqAobWk1cwM6afESml70Gw2KfyQRe0PjPHzuz_qEF70iuYy2ZL1PGKsxn3e1YLV-q774iD5TCtPefbi_UgJcYGsuwUcDarIoi3cWPzGXzOFoOj1bp932K2g95U6uVrdf9E9A"/>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Flow -->
+<main class="relative z-10 flex-1 flex flex-col items-center pt-20 pb-28 px-5 max-w-md mx-auto w-full justify-between">
+<!-- Executive Caller Section -->
+<div class="flex flex-col items-center text-center w-full pt-3">
+<!-- Caller Avatar with Luxury Glow Ring -->
+<div class="relative mb-4">
+<div class="absolute -inset-2.5 rounded-full bg-gradient-to-b from-red-500/30 via-amber-500/15 to-transparent blur-md opacity-75"></div>
+<div class="relative w-24 h-24 rounded-full p-[2px] bg-gradient-to-b from-red-400/60 to-red-900/40 shadow-2xl">
+<img alt="Marcus Vance" class="w-full h-full rounded-full object-cover grayscale-[20%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDFkflNbavSG5ZU8R3sxCzT3Ul543GqFHY3H4vftFaiCVJIh-5nktDlR6uOFYqMA1iUuYj8TPstPeNrqLBDEJ2O_IyajVuUHsTo09FJRYdS0_ec3HDWYn_ymQO5GdHlg2TDcm4v2H_MdqUNJQBfCOMF2X-OFCTYkooZx0Y9vnkHbFh3EgKNEZlVqaEKEZB2Y6BGugpRiGp_0B-rmZo_JWoqD35s61n7tawqKt1mwUAZ9L4BCNujlErSg"/>
+<div class="absolute -bottom-1 right-1 w-6 h-6 rounded-full bg-error text-white flex items-center justify-center shadow-lg border-2 border-surface">
+<span class="material-symbols-outlined text-[13px] font-bold">warning</span>
+</div>
+</div>
+</div>
+<!-- Caller Identification -->
+<h1 class="text-2xl font-bold tracking-tight text-on-surface">Marcus Vance</h1>
+<p class="text-sm text-on-surface-variant font-medium mt-0.5">Reported CFO • Corporate Executive</p>
+<p class="text-xs font-normal text-on-surface-variant/70 tracking-wider mt-1">+1 (650) 412-9931</p>
+<!-- Clean High-Impact Threat Tag -->
+<div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 shadow-sm backdrop-blur-sm">
+<span class="material-symbols-outlined text-error text-[17px]">crisis_alert</span>
+<span class="text-xs font-semibold text-red-300 tracking-wide">Synthetic Voice Warning</span>
+<span class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-error text-surface font-mono">89%</span>
+</div>
+</div>
+<!-- Acoustic Wave & Key Insight Centerpiece -->
+<div class="w-full my-6 flex flex-col items-center">
+<div class="w-full bg-surface-container-low/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-5 flex flex-col items-center shadow-glow-threat">
+<!-- Verification Label -->
+<div class="flex items-center justify-between w-full mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">graphic_eq</span>
+<span class="text-xs font-semibold uppercase tracking-wider text-on-surface">Analyzing Inbound Audio</span>
+</div>
+<span class="text-[11px] text-primary/80 font-medium tracking-wide flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+            Real-time
+          </span>
+</div>
+<!-- Sleek Minimal Audio Spectrum (16 smooth bars) -->
+<div class="h-14 w-full flex items-end justify-center gap-1.5 py-1 px-2">
+<div class="wave-bar w-1.5 rounded-full bg-amber-400/80 h-4" style="animation-delay: 0.1s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400/90 h-7" style="animation-delay: 0.3s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-300 h-10" style="animation-delay: 0.2s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400 h-6" style="animation-delay: 0.5s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-red-400 h-12" style="animation-delay: 0.15s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-red-500 h-14" style="animation-delay: 0.4s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-red-500 h-11" style="animation-delay: 0.25s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-red-400 h-13" style="animation-delay: 0.6s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-red-500 h-14" style="animation-delay: 0.35s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-red-400 h-10" style="animation-delay: 0.45s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400 h-8" style="animation-delay: 0.2s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-300 h-11" style="animation-delay: 0.55s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400 h-7" style="animation-delay: 0.1s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400/80 h-9" style="animation-delay: 0.4s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400/60 h-5" style="animation-delay: 0.25s;"></div>
+<div class="wave-bar w-1.5 rounded-full bg-amber-400/50 h-3" style="animation-delay: 0.65s;"></div>
+</div>
+<!-- Clean Recommendation Pill -->
+<div class="mt-4 pt-3.5 border-t border-white/[0.05] w-full flex items-center justify-center gap-2 text-center">
+<span class="material-symbols-outlined text-red-400 text-[16px] shrink-0">fingerprint</span>
+<span class="text-xs text-on-surface-variant font-medium">Neural clone detected matching external voice library.</span>
+</div>
+</div>
+</div>
+<!-- Action Center: Generous, Premium, Minimalist Buttons -->
+<div class="w-full flex flex-col gap-3">
+<!-- Primary Action: Reject & Block (Subtle Dark Crimson) -->
+<button class="w-full h-14 rounded-2xl bg-gradient-to-r from-[#591419] to-[#3B0E12] hover:from-[#6B1A20] hover:to-[#4A1217] border border-red-500/30 text-red-100 font-semibold text-base flex items-center justify-center gap-2.5 shadow-lg shadow-red-950/40 active:scale-[0.985] transition-all focus:outline-none" id="dropBlockBtn">
+<span class="material-symbols-outlined text-[21px] text-red-400">call_end</span>
+<span>Reject &amp; Block Caller</span>
+</button>
+<!-- Secondary Action: Screen Call with AI Guard -->
+<button class="w-full h-13 py-3.5 rounded-2xl bg-surface-container hover:bg-surface-container-high border border-white/[0.08] text-on-surface font-semibold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.985] transition-all focus:outline-none" id="answerGuardBtn">
+<span class="material-symbols-outlined text-primary text-[19px]">shield_with_heart</span>
+<span>Screen Call with AI Guard</span>
+</button>
+<!-- Biometric Challenge Quick Option -->
+<div class="flex items-center justify-center mt-1">
+<button class="flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3 rounded-full hover:bg-white/5" id="challengeBtn">
+<span class="material-symbols-outlined text-[15px]">record_voice_over</span>
+<span>Force Biometric Vocal Challenge</span>
+</button>
+</div>
+</div>
+<!-- Toast Notification -->
+<div class="fixed bottom-20 left-4 right-4 bg-surface-container-highest/95 border border-white/10 text-on-surface p-3.5 rounded-xl shadow-2xl flex items-center gap-3 transition-opacity duration-300 opacity-0 pointer-events-none z-50 backdrop-blur-xl" id="toastNotification">
+<div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" id="toastIconContainer">
+<span class="material-symbols-outlined text-[18px]" id="toastIcon"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-semibold text-on-surface leading-tight truncate" id="toastTitle"></span>
+<span class="text-xs text-on-surface-variant leading-normal truncate" id="toastDesc"></span>
+</div>
+</div>
+</main>
+<!-- Clean Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl border-t border-white/[0.05]">
+<div class="h-16 px-4 flex items-center justify-around max-w-md mx-auto">
+<a class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">shield</span>
+<span class="text-[10px] font-medium tracking-wider mt-0.5">Dashboard</span>
+</a>
+<a aria-current="page" class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] text-primary transition-colors font-semibold" href="#">
+<span class="material-symbols-outlined text-[22px]">phone_in_talk</span>
+<span class="text-[10px] font-medium tracking-wider mt-0.5">Call Shield</span>
+</a>
+<a class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">graphic_eq</span>
+<span class="text-[10px] font-medium tracking-wider mt-0.5">Forensics</span>
+</a>
+<a class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">tune</span>
+<span class="text-[10px] font-medium tracking-wider mt-0.5">Settings</span>
+</a>
+</div>
+</nav>
+<script>
+    (function() {
+      const toast = document.getElementById('toastNotification');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastDesc = document.getElementById('toastDesc');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastIconBox = document.getElementById('toastIconContainer');
+      let toastTimer = null;
+
+      function showToast(title, desc, iconName, bgClass, textClass) {
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTitle.textContent = title;
+        toastDesc.textContent = desc;
+        toastIcon.textContent = iconName;
+        toastIconBox.className = 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 ' + bgClass + ' ' + textClass;
+        
+        toast.classList.remove('opacity-0', 'pointer-events-none');
+        toast.classList.add('opacity-100');
+
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('opacity-100');
+          toast.classList.add('opacity-0', 'pointer-events-none');
+        }, 3000);
+      }
+
+      const dropBtn = document.getElementById('dropBlockBtn');
+      if (dropBtn) {
+        dropBtn.addEventListener('click', () => {
+          showToast('Caller Blocked', 'Identity flagged and added to zero-trust blocklist.', 'block', 'bg-red-500/20', 'text-red-400');
+        });
+      }
+
+      const answerBtn = document.getElementById('answerGuardBtn');
+      if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+          showToast('Shield Enabled', 'Call bridged with live neural audio dampening.', 'verified_user', 'bg-blue-500/20', 'text-secondary');
+        });
+      }
+
+      const challengeBtn = document.getElementById('challengeBtn');
+      if (challengeBtn) {
+        challengeBtn.addEventListener('click', () => {
+          showToast('Biometric Challenge Sent', 'Prompting caller for vocal reflex verification.', 'mic', 'bg-amber-500/20', 'text-primary');
+        });
+      }
+    })();
+  </script>
+</body></html>
