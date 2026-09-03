@@ -49,7 +49,7 @@ export default function Forensics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c0e13] text-white flex flex-col">
+      <div className="min-h-screen bg-[#0B0E14] text-white flex flex-col">
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin w-8 h-8 border-2 border-[#e5c365] border-t-transparent rounded-full"></div>
         </div>
@@ -60,11 +60,11 @@ export default function Forensics() {
 
   if (!report) {
     return (
-      <div className="min-h-screen bg-[#0c0e13] text-white flex flex-col">
+      <div className="min-h-screen bg-[#0B0E14] text-white flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4">
           <span className="material-symbols-outlined text-slate-500 text-5xl">find_in_page</span>
           <p className="text-slate-400">Select a scan from your Dashboard to view forensics.</p>
-          <button onClick={() => navigate('/')} className="px-4 py-2 bg-[#2b2f3a] rounded-lg text-sm font-medium">Return Home</button>
+          <button onClick={() => navigate('/')} className="px-4 py-2 bg-[#161B26] hover:bg-[#1E2330] border border-white/[0.08] rounded-lg text-sm font-medium">Return Home</button>
         </div>
         <BottomNav />
       </div>
@@ -74,12 +74,12 @@ export default function Forensics() {
   const isSafe = report.risk_score < 50;
 
   return (
-    <div className="min-h-screen bg-[#0c0e13] text-white">
+    <div className="min-h-screen bg-[#0B0E14] text-white">
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 pt-safe bg-[#0c0e13]/80 backdrop-blur-xl border-b border-[#2b2f3a]/50">
+      <header className="fixed top-0 w-full z-50 pt-safe bg-[#0B0E14]/85 backdrop-blur-xl border-b border-white/[0.04]">
         <div className="h-16 px-5 flex items-center justify-between max-w-lg mx-auto">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#16181e] border border-[#e5c365]/30 flex items-center justify-center text-[#e5c365] shadow-[0_0_15px_rgba(229,195,101,0.12)]">
+            <div className="w-9 h-9 rounded-xl bg-[#141824] border border-[#e5c365]/30 flex items-center justify-center text-[#e5c365] shadow-[0_0_15px_rgba(229,195,101,0.12)]">
               <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>shield_with_heart</span>
             </div>
             <div className="flex flex-col">
@@ -111,7 +111,7 @@ export default function Forensics() {
         </div>
 
         {/* Hero Incident Card */}
-        <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#16181e] to-[#1d2027] border p-5 shadow-xl shadow-black/40 ${isSafe ? 'border-emerald-500/30' : 'border-[#e5c365]/30'}`}>
+        <div className={`relative overflow-hidden rounded-2xl bg-[#141824] border p-5 shadow-xl shadow-black/40 ${isSafe ? 'border-emerald-500/30' : 'border-[#e5c365]/30'}`}>
           {!isSafe && <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#e5c365]/10 rounded-full blur-3xl pointer-events-none"></div>}
           {!isSafe && <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>}
           
@@ -132,7 +132,7 @@ export default function Forensics() {
             </div>
 
             {/* AI Report Text */}
-            <div className="p-3 rounded-xl bg-[#0c0e13]/60 border border-[#2b2f3a]/60">
+            <div className="p-3 rounded-xl bg-[#0B0E14]/60 border border-white/[0.06]">
               <div className="text-[11px] font-medium text-slate-400 mb-1">AI Copilot Analysis</div>
               <p className="text-sm font-medium text-white/90 leading-snug">
                 {report.report_text}
@@ -140,7 +140,7 @@ export default function Forensics() {
             </div>
 
             {/* Score */}
-            <div className="flex items-end justify-between pt-1 border-t border-[#2b2f3a]/40">
+            <div className="flex items-end justify-between pt-1 border-t border-white/[0.06]">
               <div>
                 <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Confidence Score</div>
                 <div className="text-xs text-slate-400/70">Multi-band spectral variance analysis</div>
@@ -158,15 +158,15 @@ export default function Forensics() {
         </div>
 
         {/* Audio Player (Mock) */}
-        <div className="rounded-2xl bg-[#16181e] border border-[#2b2f3a]/50 p-4 space-y-3.5 shadow-md">
+        <div className="rounded-2xl bg-[#141824] border border-white/[0.06] p-4 space-y-3.5 shadow-md">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className={`material-symbols-outlined text-[19px] ${isSafe ? 'text-emerald-400' : 'text-[#ffe08d]'}`}>graphic_eq</span>
               <h2 className="text-sm font-semibold text-white tracking-wide">Captured Audio Sample</h2>
             </div>
-            <span className="text-[11px] font-mono text-slate-400 bg-[#1d2027] px-2 py-0.5 rounded">00:08s CLIP</span>
+            <span className="text-[11px] font-mono text-slate-400 bg-[#1E2330] px-2 py-0.5 rounded">00:08s CLIP</span>
           </div>
-          <div className="p-3 rounded-xl bg-[#0c0e13]/80 border border-[#2b2f3a]/40 space-y-3">
+          <div className="p-3 rounded-xl bg-[#0B0E14]/80 border border-white/[0.06] space-y-3">
             <div className="flex items-center gap-3">
               <button onClick={() => setIsPlaying(!isPlaying)}
                 className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0 ${isSafe ? 'bg-emerald-500 text-white hover:bg-emerald-400' : 'bg-[#ffe08d] text-[#3d2f00] hover:bg-[#fbe5a2]'}`}>
@@ -177,7 +177,7 @@ export default function Forensics() {
                   <span className={`${isSafe ? 'text-emerald-400' : 'text-[#ffe08d]'} font-medium`}>00:00.0</span>
                   <span className="text-slate-400">00:08.0</span>
                 </div>
-                <div className="w-full bg-[#1d2027] h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-[#1E2330] h-1.5 rounded-full overflow-hidden">
                   <div className={`h-full rounded-full w-0 ${isPlaying ? 'w-full transition-all duration-[8000ms] ease-linear' : ''} ${isSafe ? 'bg-emerald-400' : 'bg-[#ffe08d]'}`}></div>
                 </div>
               </div>
@@ -193,15 +193,15 @@ export default function Forensics() {
 
         {/* Threat Assessment (Mapped from signals) */}
         {!isSafe && report.signals && report.signals.length > 0 && (
-          <div className="rounded-2xl bg-[#16181e] border border-[#2b2f3a]/50 p-4 space-y-3 shadow-md">
-            <div className="flex items-center justify-between pb-1 border-b border-[#2b2f3a]/30">
+          <div className="rounded-2xl bg-[#141824] border border-white/[0.06] p-4 space-y-3 shadow-md">
+            <div className="flex items-center justify-between pb-1 border-b border-white/[0.04]">
               <h2 className="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
                 <span className="material-symbols-outlined text-[19px] text-[#ffe08d]">analytics</span>
                 Threat Assessment
               </h2>
             </div>
             {report.signals.map((sig, i) => (
-              <div key={i} className="p-3 rounded-xl bg-[#1d2027]/60 border border-[#2b2f3a]/30 flex items-start gap-3">
+              <div key={i} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.04] flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#262932] flex items-center justify-center shrink-0 mt-0.5">
                   <span className="material-symbols-outlined text-[18px] text-red-400">warning</span>
                 </div>
@@ -217,7 +217,7 @@ export default function Forensics() {
         {/* Action Buttons */}
         <div className="flex flex-col space-y-2.5 pt-1">
           <button onClick={() => showToast('Export Coming Soon', 'PDF generation is not yet implemented on the backend.')}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#2b2f3a] to-[#1d2027] border border-[#2b2f3a] hover:border-[#434752] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg active:scale-[0.99] transition-all">
+            className="w-full h-12 rounded-xl bg-[#161B26] hover:bg-[#1E2330] border border-white/[0.08] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg active:scale-[0.99] transition-all">
             <span className="material-symbols-outlined text-[20px]">download</span>
             <span>Download Incident Log</span>
           </button>
@@ -226,7 +226,7 @@ export default function Forensics() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-24 left-5 right-5 z-50 max-w-md mx-auto bg-[#31353f] border border-[#e5c365]/30 text-white p-3.5 rounded-xl shadow-2xl flex items-center gap-3">
+        <div className="fixed bottom-24 left-5 right-5 z-50 max-w-md mx-auto bg-[#1E2330] border border-[#e5c365]/30 text-white p-3.5 rounded-xl shadow-2xl flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-[#e5c365]/20 text-[#ffe08d] flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-[20px]">info</span>
           </div>
