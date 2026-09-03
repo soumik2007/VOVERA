@@ -84,28 +84,43 @@ export default function Dashboard() {
         <div className="relative overflow-hidden rounded-2xl bg-[#141824] border border-white/[0.06] p-7 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <div className="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-[#E5C365]/5 blur-3xl pointer-events-none"></div>
           <div className="flex flex-col items-center text-center">
-            {/* Radial Ring — outer ring pulses when shield is active */}
-            <div className="relative flex items-center justify-center mb-4" style={{ width: '148px', height: '148px' }}>
+            {/* Sonar Lens (The Circular Protected Tag) */}
+            <div className="relative flex items-center justify-center mb-6 mt-2" style={{ width: '160px', height: '160px' }}>
+              {/* Central Glow */}
               {defenseOn && (
-                <div className="absolute inset-0 rounded-full border-2 border-[#E5C365]/15 animate-ping" style={{ animationDuration: '2.8s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#E5C365]/15 blur-[40px] rounded-full pointer-events-none" />
               )}
-              <svg width="148" height="148" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
-                <circle cx="50" cy="50" fill="none" r="42" stroke="rgba(255,255,255,0.06)" strokeWidth="3.5" />
-                <circle cx="50" cy="50" fill="none" r="42"
-                  stroke="url(#goldGradient)"
-                  strokeDasharray="264" strokeDashoffset="18"
-                  strokeLinecap="round" strokeWidth="3.5"
-                />
-                <defs>
-                  <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#E5C365" />
-                    <stop offset="100%" stopColor="#A38532" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div style={{ position: 'absolute' }} className="flex flex-col items-center justify-center text-center">
-                <span className="material-symbols-outlined text-[#E5C365]" style={{ fontSize: '28px', fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-                <span className="text-xs font-medium tracking-wider text-slate-400 uppercase mt-0.5">Protected</span>
+              
+              {/* Staggered Sonar Ripples */}
+              {defenseOn && (
+                <>
+                  <div className="absolute inset-1 rounded-full border border-[#E5C365]/40 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
+                  <div className="absolute inset-1 rounded-full border border-[#E5C365]/20 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" style={{ animationDelay: '1s' }} />
+                  <div className="absolute inset-1 rounded-full border border-[#E5C365]/10 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" style={{ animationDelay: '2s' }} />
+                </>
+              )}
+
+              {/* Core Glass Lens */}
+              <div className={`relative w-[120px] h-[120px] rounded-full flex flex-col items-center justify-center transition-all duration-700 shadow-2xl z-10 overflow-hidden ${
+                defenseOn
+                  ? 'bg-[#0B0E14] border border-[#E5C365]/50 shadow-[0_0_40px_rgba(229,195,101,0.15),inset_0_0_30px_rgba(229,195,101,0.25)]'
+                  : 'bg-[#161B26] border border-white/[0.06] shadow-inner'
+              }`}>
+                {/* Rotating Scanner Ring */}
+                {defenseOn && (
+                  <div className="absolute inset-1 border-[2px] border-dashed border-[#E5C365]/20 rounded-full animate-[spin_8s_linear_infinite]" />
+                )}
+
+                <span className={`material-symbols-outlined transition-all duration-500 relative z-20 ${
+                  defenseOn ? 'text-[#E5C365] drop-shadow-[0_0_12px_rgba(229,195,101,0.8)]' : 'text-slate-500'
+                }`} style={{ fontSize: '32px', fontVariationSettings: "'FILL' 1" }}>
+                  {defenseOn ? 'security' : 'gpp_bad'}
+                </span>
+                <span className={`text-[10px] font-bold tracking-[0.15em] uppercase mt-1 relative z-20 transition-colors ${
+                  defenseOn ? 'text-[#E5C365]' : 'text-slate-500'
+                }`}>
+                  {defenseOn ? 'Protected' : 'Offline'}
+                </span>
               </div>
             </div>
 
