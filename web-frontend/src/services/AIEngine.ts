@@ -21,6 +21,7 @@ export class LocalAIEngine {
 
   // Python Backend Connection
   private ws: WebSocket | null = null;
+  private recognition: any = null;
   private latestSignals: any = { acoustic_variance: 0, phonetic_marker: 0 };
 
   async startAnalysis(
@@ -55,15 +56,37 @@ export class LocalAIEngine {
       this.ws.onopen = () => {
         console.log("[AI Engine] Connected to Python PyTorch Backend!");
       };
+      
+      // Initialize Web Speech API for Semantic Layer
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.onresult = (event: any) => {
+           let transcript = "";
+           for (let i = event.resultIndex; i < event.results.length; ++i) {
+             transcript += event.results[i][0].transcript;
+           }
+           // Send the live text transcript over WebSocket to FLAN-T5
+           if (this.ws && this.ws.readyState === WebSocket.OPEN && transcript.trim().length > 0) {
+               this.ws.send(JSON.stringify({ type: "transcript", text: transcript.trim() }));
+           }
+        };
+        this.recognition.start();
+      }
 
       this.ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           if (data.status === 'success') {
-             // Smooth the score with a rolling average (50% old, 50% new)
-             // This speeds up the deepfake catch time to ~3 seconds while still preventing 1-second anomalies.
-             this.currentScore = (this.currentScore * 0.5) + (data.risk_score * 0.5);
-             this.latestSignals = data.details || {};
+             // Smooth the score with a rolling average (80% old, 20% new)
+             this.currentScore = (this.currentScore * 0.8) + (data.risk_score * 0.2);
+             this.latestSignals = { 
+                 ...data.details, 
+                 scam_intent: data.scam_intent,
+                 transcript: data.transcript
+             };
              console.log("[AI Engine] Score Update from PyTorch:", this.currentScore.toFixed(1));
           }
         } catch(e) {
@@ -97,7 +120,9 @@ export class LocalAIEngine {
         const mappedSignals = {
           acoustic_variance: this.latestSignals.acoustic_variance || 0,
           phonetic_marker: this.latestSignals.phonetic_marker || 0,
-          voice_clone_probability: Math.min(this.currentScore, 99)
+          voice_clone_probability: Math.min(this.currentScore, 99),
+          semantic_intent_score: this.latestSignals.scam_intent ? 100 : 0,
+          transcript: this.latestSignals.transcript || ''
         };
 
         onScoreUpdate(this.currentScore, mappedSignals, waveform);
@@ -113,8 +138,14 @@ export class LocalAIEngine {
             callerHash: btoa(callerNumber).substring(0, 10),
             riskScore: this.currentScore,
             timestamp: new Date().toISOString(),
-            signals: mappedSignals,
-            reportText: 'The VoveraShield PyTorch engine (ECAPA-TDNN & HuBERT) detected severe acoustic variance and phonetic anomalies consistent with neural voice synthesis. Call terminated automatically.',
+            signals: {
+                spectral_artifacts: mappedSignals.acoustic_variance,
+                pitch_inconsistency: mappedSignals.phonetic_marker,
+                voice_clone_probability: mappedSignals.voice_clone_probability,
+                semantic_intent_score: mappedSignals.semantic_intent_score
+            },
+            transcriptSnippet: mappedSignals.transcript,
+            reportText: 'Multi-Modal Intercept: The Acoustic shield detected a robotic voice, and the FLAN-T5 Semantic layer flagged the conversation intent as malicious. Call terminated.',
             actionTaken: 'BLOCKED'
           });
 
@@ -138,6 +169,11 @@ export class LocalAIEngine {
   stopAnalysis() {
     this.analyzing = false;
     
+    if (this.recognition) {
+        try { this.recognition.stop(); } catch(e) {}
+        this.recognition = null;
+    }
+
     if (this.ws) {
         this.ws.close();
         this.ws = null;

@@ -56,66 +56,84 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("UI Connected to Live Audio Stream.")
     try:
+        scam_intent_active = False
+        last_transcript = ""
+
         while True:
-            # Receive raw binary PCM data from browser (Float32Array)
-            data = await websocket.receive_bytes()
+            message = await websocket.receive()
             
-            if shield is None:
-                await websocket.send_json({"error": "AI models still loading..."})
+            # --- SEMANTIC LAYER (FLAN-T5) ---
+            if "text" in message:
+                try:
+                    import json
+                    payload = json.loads(message["text"])
+                    if payload.get("type") == "transcript":
+                        transcript_text = payload.get("text", "")
+                        if len(transcript_text.strip()) > 5:
+                            last_transcript = transcript_text
+                            semantic_res = shield.analyze_transcript(transcript_text)
+                            scam_intent_active = semantic_res.get("scam_intent_detected", False)
+                            print(f"[Semantic] '{transcript_text}' -> Scam: {scam_intent_active}")
+                except Exception as e:
+                    print(f"Error parsing text payload: {e}")
                 continue
                 
-            # Convert bytes to torch tensor
-            audio_np = np.frombuffer(data, dtype=np.float32)
-            audio_tensor = torch.from_numpy(audio_np).unsqueeze(0) # [1, time]
-            
-            # Run through ECAPA-TDNN and HuBERT
-            results = shield.analyze_audio_chunk(audio_tensor, sample_rate=16000)
-            
-            # Simple risk calculation based on acoustic variance and phonetic marker for prototype
-            # -- THE DEEPFAKE DETECTOR LOGIC (Model Fusion) --
-            
-            # 1. Baseline Human Score (from ECAPA-TDNN)
-            acoustic_score = abs(results.get('acoustic_variance', 0) / 50)
-            
-            # 2. Robotic Phonetic Penalty (from HuBERT)
-            # AI voices have unnaturally uniform phonetic spaces. 
-            # If phonetic variance drops below normal, penalize heavily.
-            phonetic_var = results.get('phonetic_variance', 0.5)
-            robotic_penalty = 0
-            if phonetic_var < 0.2:  # Too perfectly pronounced / flat
-                robotic_penalty += 30
+            # --- ACOUSTIC LAYER (ECAPA-TDNN & HuBERT) ---
+            if "bytes" in message:
+                data = message["bytes"]
+                if shield is None:
+                    await websocket.send_json({"error": "AI models still loading..."})
+                    continue
+                    
+                audio_np = np.frombuffer(data, dtype=np.float32)
+                audio_tensor = torch.from_numpy(audio_np).unsqueeze(0)
                 
-            # 3. Phone Speaker / Digital Artifact Penalty (from Audio Physics)
-            # A phone playing into a laptop mic creates hiss/distortion (high ZCR)
-            # and unnatural energy curves.
-            zcr = results.get('zcr', 0)
-            energy_std = results.get('energy_std', 0)
-            
-            artifact_penalty = 0
-            if zcr > 0.08: # Natural voice is usually lower. Static/Speaker is high.
-                artifact_penalty += (zcr * 400)
-            if energy_std < 0.005 and zcr > 0.05: # Flat energy + noise = speaker playback
-                artifact_penalty += 40
+                results = shield.analyze_audio_chunk(audio_tensor, sample_rate=16000)
                 
-            # Final Fusion Score
-            risk_score = int(acoustic_score + robotic_penalty + artifact_penalty)
-            
-            # Ensure normal speech hovers at 10-15
-            if risk_score < 10:
-                risk_score = 10 + int(acoustic_score)
+                # 1. Baseline Human Score (from ECAPA-TDNN)
+                acoustic_score = abs(results.get('acoustic_variance', 0) / 50)
                 
-            risk_score = min(100, risk_score)
-            
-            # Ensure it doesn't stay perfectly at 0 to show activity
-            if risk_score < 3:
-                risk_score = 3
-            
-            # Send real-time risk assessment back to UI
-            await websocket.send_json({
-                "status": "success",
-                "risk_score": risk_score,
-                "details": results
-            })
+                # 2. Robotic Phonetic Penalty (from HuBERT)
+                phonetic_var = results.get('phonetic_variance', 0.5)
+                robotic_penalty = 0
+                if phonetic_var < 0.2: 
+                    robotic_penalty += 30
+                    
+                # 3. Digital Artifact Penalty
+                zcr = results.get('zcr', 0)
+                energy_std = results.get('energy_std', 0)
+                artifact_penalty = 0
+                if zcr > 0.08:
+                    artifact_penalty += (zcr * 400)
+                if energy_std < 0.005 and zcr > 0.05:
+                    artifact_penalty += 40
+                    
+                # The "Robot Probability"
+                robot_risk = int(acoustic_score + robotic_penalty + artifact_penalty)
+                
+                # --- MULTI-MODAL FUSION DECISION ---
+                if robot_risk >= 80:
+                    if scam_intent_active:
+                        # It is a robot AND the transcript is a scam -> TERMINATE
+                        risk_score = 100
+                    else:
+                        # It is a robot, BUT the conversation is safe (e.g. Pharmacy) -> WARNING
+                        risk_score = 75
+                else:
+                    risk_score = robot_risk
+                    
+                if risk_score < 10:
+                    risk_score = 10 + int(acoustic_score)
+                    
+                risk_score = min(100, risk_score)
+                
+                await websocket.send_json({
+                    "status": "success",
+                    "risk_score": risk_score,
+                    "scam_intent": scam_intent_active,
+                    "transcript": last_transcript,
+                    "details": results
+                })
     except WebSocketDisconnect:
         print("UI disconnected from Audio Stream.")
     except Exception as e:

@@ -171,6 +171,27 @@ export default function Forensics() {
             </div>
           </div>
 
+          {/* Transcript / Semantic Analysis */}
+          {report.transcriptSnippet && (
+            <div className="rounded-2xl bg-[#141824] border border-white/[0.06] p-4 space-y-3 shadow-md">
+              <div className="flex items-center justify-between pb-1 border-b border-white/[0.04]">
+                <h2 className="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[19px] text-[#A5B4FC]">chat</span>
+                  Semantic Analysis
+                </h2>
+                <div className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase ${report.signals?.semantic_intent_score === 100 ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                  {report.signals?.semantic_intent_score === 100 ? 'MALICIOUS INTENT' : 'SAFE INTENT'}
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-[#0B0E14]/60 border border-white/[0.04]">
+                <div className="text-[11px] font-medium text-slate-400 mb-1">Live Transcript Snippet</div>
+                <p className="text-[13px] font-medium text-white/90 italic leading-relaxed">
+                  "{report.transcriptSnippet}"
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Threat Assessment (Mapped from signals) */}
           {!isSafe && report.signals && Object.keys(report.signals).length > 0 && (
             <div className="rounded-2xl bg-[#141824] border border-white/[0.06] p-4 space-y-3 shadow-md">
@@ -180,7 +201,7 @@ export default function Forensics() {
                   Threat Assessment
                 </h2>
               </div>
-              {Object.entries(report.signals).map(([key, val], i) => (
+              {Object.entries(report.signals).filter(([key]) => key !== 'semantic_intent_score').map(([key, val], i) => (
                 <div key={i} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.04] flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[#262932] flex items-center justify-center shrink-0 mt-0.5">
                     <span className="material-symbols-outlined text-[18px] text-red-400">warning</span>

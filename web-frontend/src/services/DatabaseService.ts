@@ -11,7 +11,9 @@ export interface ForensicReport {
     spectral_artifacts: number;
     pitch_inconsistency: number;
     voice_clone_probability: number;
+    semantic_intent_score?: number;
   };
+  transcriptSnippet?: string;
   reportText: string;
   actionTaken: 'BLOCKED' | 'WARNED' | 'SAFE';
 }

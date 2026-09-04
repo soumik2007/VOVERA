@@ -68,17 +68,21 @@ class VoveraShield:
         """
         Runs the transcribed text through FLAN-T5 to detect scam intent.
         """
-        prompt = f"Is the following text a phone scam or social engineering attempt? Answer 'yes' or 'no'. Text: {transcript}"
+        prompt = f"Question: Does this caller sound like a scammer asking for money, personal info, bank details, or passwords? Answer 'yes' or 'no'. Caller: '{transcript}'"
         inputs = self.t5_tokenizer(prompt, return_tensors="pt").to(self.device)
         
         with torch.no_grad():
             outputs = self.t5.generate(**inputs, max_length=10)
             
-        answer = self.t5_tokenizer.decode(outputs[0], skip_special_tokens=True)
+        answer = self.t5_tokenizer.decode(outputs[0], skip_special_tokens=True).strip().lower()
+        
+        # We also do a quick keyword check since flan-t5-small is very tiny and might miss obvious ones
+        suspicious_words = ['social security', 'password', 'bank', 'credit card', 'irs', 'urgent', 'wire transfer', 'crypto', 'gift card']
+        keyword_flag = any(word in transcript.lower() for word in suspicious_words)
         
         return {
             "transcript": transcript,
-            "scam_intent_detected": "yes" in answer.lower(),
+            "scam_intent_detected": "yes" in answer or keyword_flag,
             "flan_t5_raw_output": answer
         }
 
