@@ -96,16 +96,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 # 2. Robotic Phonetic Penalty (from HuBERT)
                 phonetic_var = results.get('phonetic_variance', 0.5)
                 robotic_penalty = 0
-                if phonetic_var < 0.2: 
+                if phonetic_var < 0.05: # Only severely monotonic voices (0.05 instead of 0.2)
                     robotic_penalty += 30
                     
                 # 3. Digital Artifact Penalty
                 zcr = results.get('zcr', 0)
                 energy_std = results.get('energy_std', 0)
                 artifact_penalty = 0
-                if zcr > 0.08:
-                    artifact_penalty += (zcr * 400)
-                if energy_std < 0.005 and zcr > 0.05:
+                if zcr > 0.15: # Standard laptop mics can hit 0.1, phone speakers hit 0.2+
+                    artifact_penalty += (zcr * 200)
+                if energy_std < 0.005 and zcr > 0.08:
                     artifact_penalty += 40
                     
                 # The "Robot Probability"

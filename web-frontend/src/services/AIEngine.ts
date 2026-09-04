@@ -64,13 +64,15 @@ export class LocalAIEngine {
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
         this.recognition.onresult = (event: any) => {
-           let transcript = "";
+           let finalTranscript = "";
            for (let i = event.resultIndex; i < event.results.length; ++i) {
-             transcript += event.results[i][0].transcript;
+             if (event.results[i].isFinal) {
+                 finalTranscript += event.results[i][0].transcript;
+             }
            }
-           // Send the live text transcript over WebSocket to FLAN-T5
-           if (this.ws && this.ws.readyState === WebSocket.OPEN && transcript.trim().length > 0) {
-               this.ws.send(JSON.stringify({ type: "transcript", text: transcript.trim() }));
+           // Only send when the sentence is complete to avoid choking PyTorch with partials
+           if (this.ws && this.ws.readyState === WebSocket.OPEN && finalTranscript.trim().length > 0) {
+               this.ws.send(JSON.stringify({ type: "transcript", text: finalTranscript.trim() }));
            }
         };
         
@@ -88,8 +90,8 @@ export class LocalAIEngine {
         try {
           const data = JSON.parse(event.data);
           if (data.status === 'success') {
-             // Smooth the score with a rolling average (80% old, 20% new)
-             this.currentScore = (this.currentScore * 0.8) + (data.risk_score * 0.2);
+             // Make the UI fast and snappy (50/50 blend instead of sluggish 80/20)
+             this.currentScore = (this.currentScore * 0.5) + (data.risk_score * 0.5);
              this.latestSignals = { 
                  ...data.details, 
                  scam_intent: data.scam_intent,
