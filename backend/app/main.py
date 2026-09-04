@@ -73,11 +73,16 @@ async def websocket_endpoint(websocket: WebSocket):
             
             # Simple risk calculation based on acoustic variance and phonetic marker for prototype
             # In a real app, you would pass these embeddings into an AASIST scoring layer
-            acoustic_score = abs(results.get('acoustic_variance', 0) * 100)
-            phonetic_score = abs(results.get('phonetic_marker', 0) * 50)
+            # We scale these down for the prototype so normal human speech stays between 5 and 20.
+            acoustic_score = abs(results.get('acoustic_variance', 0) * 10)
+            phonetic_score = abs(results.get('phonetic_marker', 0) * 5)
             
             # Base logic: any high distortion/unnatural embedding bumps risk
             risk_score = min(100, int(acoustic_score + phonetic_score))
+            
+            # Ensure it doesn't stay perfectly at 0 to show activity
+            if risk_score < 3:
+                risk_score = 3
             
             # Send real-time risk assessment back to UI
             await websocket.send_json({
