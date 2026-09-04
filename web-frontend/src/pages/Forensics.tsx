@@ -16,12 +16,17 @@ export default function Forensics() {
   const reportId = searchParams.get('id');
 
   useEffect(() => {
+    // Always fetch all reports for the fallback list view
+    const all = DatabaseService.getAllReports();
+    setAllReports(all);
+
     if (reportId) {
-      const found = DatabaseService.getReportById(reportId);
+      const found = all.find(r => r.id === reportId) || null;
       setReport(found);
     } else {
-      setAllReports(DatabaseService.getAllReports());
+      setReport(null);
     }
+    
     setLoading(false);
   }, [reportId]);
 

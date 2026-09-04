@@ -19,16 +19,27 @@ export interface ForensicReport {
 export const DatabaseService = {
   // Save a new forensic report entirely locally
   saveReport: (report: ForensicReport) => {
-    const existing = DatabaseService.getAllReports();
-    existing.unshift(report);
-    localStorage.setItem('vovera_local_db_reports', JSON.stringify(existing));
-    console.log('[Local DB] Saved forensic report locally for', report.callerNumber);
+    try {
+      const existing = DatabaseService.getAllReports();
+      existing.unshift(report);
+      // Keep only the 100 most recent reports to save space
+      const trimmed = existing.slice(0, 100);
+      localStorage.setItem('vovera_local_db_reports', JSON.stringify(trimmed));
+      console.log('[Local DB] Saved forensic report locally for', report.callerNumber);
+    } catch (e) {
+      console.error('[Local DB] Failed to save report', e);
+    }
   },
 
   // Get all past reports for the Dashboard/Forensics tab
   getAllReports: (): ForensicReport[] => {
-    const data = localStorage.getItem('vovera_local_db_reports');
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem('vovera_local_db_reports');
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('[Local DB] Corrupt database data, resetting...', e);
+      return [];
+    }
   },
 
   // Get a specific report by ID

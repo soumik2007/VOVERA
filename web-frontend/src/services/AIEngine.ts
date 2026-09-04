@@ -18,7 +18,10 @@ export class LocalAIEngine {
     onScoreUpdate: OnScoreUpdate,
     onThreatDetected: OnThreatDetected
   ) {
-    console.log('[AI Engine] 🚀 Starting on-device ECAPA-TDNN & HuBERT models...');
+    // Clear any existing analysis loop to prevent memory leaks (e.g., from React StrictMode)
+    this.stopAnalysis();
+
+    console.log('[AI Engine] 🤖 Starting on-device ECAPA-TDNN & HuBERT models...');
     this.analyzing = true;
     this.currentScore = 15; // Start with baseline suspicion
 
