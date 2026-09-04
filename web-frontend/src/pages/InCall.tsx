@@ -65,8 +65,7 @@ export default function InCall() {
       },
       (reportId: string) => {
         setRiskStatus('DANGER');
-        showToast('Deepfake Intercepted — Call Terminated', 'crisis_alert');
-        setTimeout(() => navigate(`/forensics?id=${reportId}`), 2000);
+        navigate(`/forensics?id=${reportId}`);
       }
     );
 

@@ -102,7 +102,7 @@ export class LocalAIEngine {
 
         onScoreUpdate(this.currentScore, mappedSignals, waveform);
 
-        if (this.currentScore >= 85) {
+        if (this.currentScore >= 95) {
           this.stopAnalysis();
           console.warn('[AI Engine] DEEPFAKE DETECTED BY PYTORCH BACKEND. CUTTING CALL.');
           
