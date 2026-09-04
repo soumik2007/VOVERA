@@ -3,7 +3,6 @@ import BottomNav from '../components/BottomNav';
 
 export default function Settings() {
   const [autoDelete, setAutoDelete] = useState(true);
-  const [shareStats, setShareStats] = useState(false); // OFF by default — privacy first
   const [language, setLanguage] = useState('English');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -57,13 +56,6 @@ export default function Settings() {
               <p className="text-xs text-slate-400 mt-0.5">Delete recordings immediately after analysis</p>
             </div>
             <Toggle value={autoDelete} onChange={() => setAutoDelete(!autoDelete)} />
-          </div>
-          <div className="flex items-center justify-between px-5 py-4 border-t border-white/[0.05]">
-            <div>
-              <p className="text-sm font-medium text-white">Share Anonymous Stats</p>
-              <p className="text-xs text-slate-400 mt-0.5">Help improve global threat detection</p>
-            </div>
-            <Toggle value={shareStats} onChange={() => setShareStats(!shareStats)} />
           </div>
         </div>
 
