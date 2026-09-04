@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
-import { DatabaseService, ForensicReport } from '../services/DatabaseService';
+import { DatabaseService } from '../services/DatabaseService';
+import type { ForensicReport } from '../services/DatabaseService';
 
 export default function Forensics() {
   const [searchParams] = useSearchParams();

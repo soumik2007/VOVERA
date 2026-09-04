@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { aiEngine } from '../services/AIEngine';
 
 type RiskStatus = 'SAFE' | 'ANALYZING' | 'DANGER';
 
@@ -43,7 +44,7 @@ export default function InCall() {
     // 2. Start the Local AI Engine
     aiEngine.startAnalysis(
       '+1 (415) 890-2134', // Fake caller number for demo
-      (score, signals) => {
+      (score: number, signals: any) => {
         setRiskScore(score);
         if (score > 40) {
           setRiskStatus('ANALYZING');
@@ -51,7 +52,7 @@ export default function InCall() {
           setRiskStatus('SAFE');
         }
       },
-      (reportId) => {
+      (reportId: string) => {
         setRiskStatus('DANGER');
         showToast('Deepfake Intercepted — Call Terminated', 'crisis_alert');
         setTimeout(() => navigate(`/forensics?id=${reportId}`), 2000);
@@ -60,10 +61,7 @@ export default function InCall() {
 
     return () => {
       clearInterval(timer);
-      clearInterval(audioSim);
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
-      }
+      aiEngine.stopAnalysis();
     };
   }, [navigate]);
 

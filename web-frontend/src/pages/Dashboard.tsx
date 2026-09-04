@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
-import { DatabaseService, ForensicReport } from '../services/DatabaseService';
+import { DatabaseService } from '../services/DatabaseService';
+import type { ForensicReport } from '../services/DatabaseService';
 
 export default function Dashboard() {
   const [defenseOn, setDefenseOn] = useState(true);
@@ -19,15 +20,21 @@ export default function Dashboard() {
 
   // Live uptime ticker
   useEffect(() => {
-    if (!defenseOn) return;
-    const t = setInterval(() => setUptimeSeconds(s => s + 1), 1000);
-    return () => clearInterval(t);
+    if (!defenseOn) {
+      setUptimeSeconds(0);
+      return;
+    }
+    const timer = setInterval(() => setUptimeSeconds(s => s + 1), 1000);
+    return () => clearInterval(timer);
   }, [defenseOn]);
 
-  const formatUptime = (s: number) => {
-    if (s < 60) return `${s}s`;
-    if (s < 3600) return `${Math.floor(s / 60)}m ${s % 60}s`;
-    return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
+  const formatUptime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m ${s}s`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
   };
 
   const formatTimeAgo = (dateStr: string) => {
@@ -37,7 +44,7 @@ export default function Dashboard() {
     return `${Math.floor(diff/60)}h ago`;
   };
 
-  const threatsBlocked = recentCalls.filter(c => !c.is_safe).length;
+  const threatsBlocked = recentCalls.filter(c => c.riskScore >= 50).length;
 
   return (
     <div className="min-h-screen bg-[#0B0E14] text-white">
