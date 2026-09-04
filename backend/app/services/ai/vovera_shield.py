@@ -9,24 +9,30 @@ class VoveraShield:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"[Vovera Shield] Initializing on device: {self.device}")
         
-        # 1. Acoustic Layer: ECAPA-TDNN
-        print("[Vovera Shield] Loading ECAPA-TDNN (Acoustic Shield)...")
+        # 1. Load ECAPA-TDNN (SpeechBrain)
+        print("[Vovera Shield] Loading ECAPA-TDNN (Acoustic Shield)... (This takes a few seconds, no progress bar)")
         self.ecapa = EncoderClassifier.from_hparams(
-            source="speechbrain/spkrec-ecapa-voxceleb", 
-            run_opts={"device": str(self.device)}
+            source="speechbrain/spkrec-ecapa-voxceleb",
+            savedir="tmp_models/ecapa",
+            run_opts={"device": "cuda" if torch.cuda.is_available() else "cpu"}
         )
+        print("[Vovera Shield] ✅ ECAPA-TDNN Loaded Successfully!")
         
-        # 2. Phonetic Layer: HuBERT
-        print("[Vovera Shield] Loading HuBERT (Phonetic Shield)...")
-        self.hubert_processor = Wav2Vec2FeatureExtractor.from_pretrained("facebook/hubert-base-ls960")
-        self.hubert = HubertModel.from_pretrained("facebook/hubert-base-ls960").to(self.device)
-        
-        # 3. Semantic Layer: FLAN-T5
-        print("[Vovera Shield] Loading FLAN-T5 (Semantic Shield)...")
+        # 2. Load HuBERT (HuggingFace)
+        print("[Vovera Shield] Loading HuBERT (Phonetic Analyzer)...")
+        self.hubert_processor = Wav2Vec2Processor.from_pretrained("facebook/hubert-large-ls960-ft")
+        self.hubert = HubertModel.from_pretrained("facebook/hubert-large-ls960-ft").to(self.device)
+        print("[Vovera Shield] ✅ HuBERT Loaded Successfully!")
+
+        # 3. Load Semantic Model (FLAN-T5)
+        print("[Vovera Shield] Loading FLAN-T5 (Semantic Intent)...")
         self.t5_tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-small")
         self.t5 = T5ForConditionalGeneration.from_pretrained("google/flan-t5-small").to(self.device)
+        print("[Vovera Shield] ✅ FLAN-T5 Loaded Successfully!")
         
-        print("[Vovera Shield] ALL MODELS LOADED SUCCESSFULLY.")
+        print("-" * 50)
+        print("[Vovera Shield] ALL MODELS ONLINE AND READY TO INTERCEPT.")
+        print("-" * 50)
 
     def analyze_audio_chunk(self, audio_tensor: torch.Tensor, sample_rate: int = 16000):
         """
