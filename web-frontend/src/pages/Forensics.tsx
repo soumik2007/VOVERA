@@ -74,7 +74,6 @@ export default function Forensics() {
         <main className="flex-1 w-full pt-20 pb-28 px-5 flex flex-col space-y-5 max-w-lg mx-auto">
           {/* Incident Bar */}
           <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141824] border border-white/[0.06] shadow-sm">
               <span className="material-symbols-outlined text-[16px] text-slate-400">fingerprint</span>
               <span className="text-[10px] font-mono font-semibold tracking-widest text-slate-300 uppercase">
