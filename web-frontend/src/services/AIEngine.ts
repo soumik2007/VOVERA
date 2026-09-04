@@ -1,5 +1,5 @@
 // AIEngine.ts
-// Simulates the on-device ECAPA-TDNN and HuBERT models running via TFLite/ONNX on the mobile CPU/NPU.
+// Connects the React UI to the Python FastAPI backend hosting the PyTorch VoveraShield.
 
 import { DatabaseService } from './DatabaseService';
 import { ThreatReporter } from './ThreatReporter';
@@ -7,12 +7,6 @@ import { ThreatReporter } from './ThreatReporter';
 // Callbacks for the UI to update in real-time
 type OnScoreUpdate = (score: number, signals: any, waveform?: number[]) => void;
 type OnThreatDetected = (reportId: string) => void;
-
-import { pipeline, env } from '@xenova/transformers';
-
-// Configure transformers to download models from CDN and use IndexedDB caching
-env.allowLocalModels = false;
-env.useBrowserCache = true;
 
 export class LocalAIEngine {
   private analyzing: boolean = false;
@@ -25,20 +19,9 @@ export class LocalAIEngine {
   private visualAnalyzer: AnalyserNode | null = null;
   private audioProcessor: ScriptProcessorNode | null = null;
 
-  // ML Pipeline
-  private classifier: any = null;
-  private isModelLoading: boolean = false;
-
-  async initModel() {
-    if (!this.classifier && !this.isModelLoading) {
-      console.log('[AI Engine] ⏳ Downloading ONNX AST Model to browser cache (this happens once)...');
-      this.isModelLoading = true;
-      // Using a fast Audio Spectrogram Transformer
-      this.classifier = await pipeline('audio-classification', 'Xenova/ast-finetuned-audioset-10-10-0.4593');
-      console.log('[AI Engine] ✅ Real ONNX Model Loaded into WebAssembly!');
-      this.isModelLoading = false;
-    }
-  }
+  // Python Backend Connection
+  private ws: WebSocket | null = null;
+  private latestSignals: any = { acoustic_variance: 0, phonetic_marker: 0 };
 
   async startAnalysis(
     callerNumber: string,
@@ -46,61 +29,60 @@ export class LocalAIEngine {
     onThreatDetected: OnThreatDetected
   ) {
     this.stopAnalysis();
-    console.log('[AI Engine] 🎤 Requesting real microphone access for ONNX Edge AI testing...');
+    console.log('[AI Engine] Requesting microphone access for PyTorch Edge AI streaming...');
     this.analyzing = true;
     this.currentScore = 15; // Start with baseline suspicion
-
-    // Begin downloading/loading the ONNX model in the background immediately
-    this.initModel();
 
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       
-      // Transformers.js audio models expect 16000Hz sample rate
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       const source = this.audioContext.createMediaStreamSource(this.mediaStream);
       
-      // Setup Visual Analyzer for the UI waveforms
       this.visualAnalyzer = this.audioContext.createAnalyser();
       this.visualAnalyzer.fftSize = 64; 
       this.visualAnalyzer.smoothingTimeConstant = 0.8;
       
-      // Setup Processor for capturing raw PCM data for the ONNX model
       this.audioProcessor = this.audioContext.createScriptProcessor(16384, 1, 1);
       
       source.connect(this.visualAnalyzer);
       this.visualAnalyzer.connect(this.audioProcessor);
       this.audioProcessor.connect(this.audioContext.destination);
 
+      // Connect to Python FastAPI Backend
+      this.ws = new WebSocket('ws://localhost:8000/api/v1/stream-audio');
+      
+      this.ws.onopen = () => {
+        console.log("[AI Engine] Connected to Python PyTorch Backend!");
+      };
+
+      this.ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.status === 'success') {
+             // Backend successfully analyzed the chunk
+             this.currentScore = Math.max(this.currentScore, data.risk_score);
+             this.latestSignals = data.details || {};
+             console.log("[AI Engine] Score Update from PyTorch:", this.currentScore);
+          }
+        } catch(e) {
+          console.error("Failed to parse websocket message", e);
+        }
+      };
+
       const uiDataArray = new Uint8Array(this.visualAnalyzer.frequencyBinCount);
 
       // This event fires every ~1 second of audio (16384 samples at 16kHz)
-      this.audioProcessor.onaudioprocess = async (e) => {
+      this.audioProcessor.onaudioprocess = (e) => {
         if (!this.analyzing) return;
         
         const audioData = e.inputBuffer.getChannelData(0);
         
-        // Only run inference if model is loaded and audio is loud enough to matter
         const volume = audioData.reduce((acc, val) => acc + Math.abs(val), 0) / audioData.length;
         
-        if (this.classifier && volume > 0.01) {
-          try {
-             const results = await this.classifier(audioData);
-             console.log('[AI Engine] 🧠 ONNX Output:', results);
-             
-             // Look for 'Speech' confidence. 
-             const speechResult = results.find((r: any) => r.label === 'Speech');
-             const speechConfidence = speechResult ? speechResult.score : 0;
-             
-             // The lower the speech confidence (e.g. robotic/noise), the higher the synthetic risk!
-             if (speechConfidence < 0.8) {
-               this.currentScore += 12; // Synthetic marker detected!
-             } else {
-               this.currentScore += 1; // Normal background progression
-             }
-          } catch (err) {
-             console.error("Inference error:", err);
-          }
+        // If WebSocket is open and someone is actually speaking, send to Python!
+        if (this.ws && this.ws.readyState === WebSocket.OPEN && volume > 0.01) {
+            this.ws.send(audioData);
         }
       };
 
@@ -111,17 +93,17 @@ export class LocalAIEngine {
         this.visualAnalyzer.getByteFrequencyData(uiDataArray);
         const waveform = Array.from(uiDataArray).slice(0, 22).map(v => Math.max(1, v / 8));
 
-        const mockSignals = {
-          spectral_artifacts: Math.min(this.currentScore * 0.8, 99),
-          pitch_inconsistency: Math.min(this.currentScore * 0.6, 99),
+        const mappedSignals = {
+          acoustic_variance: this.latestSignals.acoustic_variance || 0,
+          phonetic_marker: this.latestSignals.phonetic_marker || 0,
           voice_clone_probability: Math.min(this.currentScore, 99)
         };
 
-        onScoreUpdate(this.currentScore, mockSignals, waveform);
+        onScoreUpdate(this.currentScore, mappedSignals, waveform);
 
         if (this.currentScore >= 85) {
           this.stopAnalysis();
-          console.warn('[AI Engine] 🚨 DEEPFAKE DETECTED BY ONNX MODEL. CUTTING CALL.');
+          console.warn('[AI Engine] DEEPFAKE DETECTED BY PYTORCH BACKEND. CUTTING CALL.');
           
           const reportId = 'rep_' + Date.now().toString(36);
           DatabaseService.saveReport({
@@ -130,8 +112,8 @@ export class LocalAIEngine {
             callerHash: btoa(callerNumber).substring(0, 10),
             riskScore: this.currentScore,
             timestamp: new Date().toISOString(),
-            signals: mockSignals,
-            reportText: 'The on-device WebAssembly AI detected severe spectral anomalies and uncharacteristic volume spikes consistent with neural voice synthesis. Call terminated automatically for user protection.',
+            signals: mappedSignals,
+            reportText: 'The VoveraShield PyTorch engine (ECAPA-TDNN & HuBERT) detected severe acoustic variance and phonetic anomalies consistent with neural voice synthesis. Call terminated automatically.',
             actionTaken: 'BLOCKED'
           });
 
@@ -155,6 +137,11 @@ export class LocalAIEngine {
   stopAnalysis() {
     this.analyzing = false;
     
+    if (this.ws) {
+        this.ws.close();
+        this.ws = null;
+    }
+
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
@@ -180,7 +167,7 @@ export class LocalAIEngine {
       this.audioContext = null;
     }
     
-    console.log('[AI Engine] 🛑 Microphone stream and models spun down.');
+    console.log('[AI Engine] Microphone stream spun down.');
   }
 }
 
