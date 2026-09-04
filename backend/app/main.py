@@ -73,8 +73,9 @@ async def websocket_endpoint(websocket: WebSocket):
             
             # Simple risk calculation based on acoustic variance and phonetic marker for prototype
             # In a real app, you would pass these embeddings into an AASIST scoring layer
-            # We scale these down for the prototype so normal human speech stays between 5 and 20.
-            acoustic_score = abs(results.get('acoustic_variance', 0) * 10)
+            # ECAPA-TDNN variance is naturally around 600-900. We scale it down drastically 
+            # so normal human speech hovers safely between 10 and 20.
+            acoustic_score = abs(results.get('acoustic_variance', 0) / 50)
             phonetic_score = abs(results.get('phonetic_marker', 0) * 5)
             
             # Base logic: any high distortion/unnatural embedding bumps risk
