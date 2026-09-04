@@ -37,25 +37,32 @@ class VoveraShield:
             resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=16000)
             audio_tensor = resampler(audio_tensor)
 
-        results = {}
-        
         with torch.no_grad():
             # 1. ECAPA-TDNN Analysis
             embeddings = self.ecapa.encode_batch(audio_tensor)
             # In a real deepfake detector, we compare these embeddings to known synthetic profiles
             # or pass them into an AASIST classifier. Here we extract feature variances.
             variance = torch.var(embeddings).item()
-            results['acoustic_variance'] = variance
             
             # 2. HuBERT Analysis
             inputs = self.hubert_processor(audio_tensor.squeeze().numpy(), sampling_rate=16000, return_tensors="pt")
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
             hubert_outputs = self.hubert(**inputs)
-            # Extract last hidden state mean as a phonetic representation
+            # Extract last hidden state mean and variance
             phonetic_mean = torch.mean(hubert_outputs.last_hidden_state).item()
-            results['phonetic_marker'] = phonetic_mean
+            phonetic_var = torch.var(hubert_outputs.last_hidden_state).item()
             
-        return results
+            # 3. Audio Physics
+            zcr = (torch.diff(torch.sign(audio_tensor)) != 0).float().mean().item()
+            energy_std = torch.std(audio_tensor ** 2).item()
+
+        return {
+            "acoustic_variance": variance,
+            "phonetic_marker": phonetic_mean,
+            "phonetic_variance": phonetic_var,
+            "zcr": zcr,
+            "energy_std": energy_std
+        }
 
     def analyze_transcript(self, transcript: str):
         """

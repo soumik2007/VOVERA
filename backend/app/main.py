@@ -72,14 +72,39 @@ async def websocket_endpoint(websocket: WebSocket):
             results = shield.analyze_audio_chunk(audio_tensor, sample_rate=16000)
             
             # Simple risk calculation based on acoustic variance and phonetic marker for prototype
-            # In a real app, you would pass these embeddings into an AASIST scoring layer
-            # ECAPA-TDNN variance is naturally around 600-900. We scale it down drastically 
-            # so normal human speech hovers safely between 10 and 20.
-            acoustic_score = abs(results.get('acoustic_variance', 0) / 50)
-            phonetic_score = abs(results.get('phonetic_marker', 0) * 5)
+            # -- THE DEEPFAKE DETECTOR LOGIC (Model Fusion) --
             
-            # Base logic: any high distortion/unnatural embedding bumps risk
-            risk_score = min(100, int(acoustic_score + phonetic_score))
+            # 1. Baseline Human Score (from ECAPA-TDNN)
+            acoustic_score = abs(results.get('acoustic_variance', 0) / 50)
+            
+            # 2. Robotic Phonetic Penalty (from HuBERT)
+            # AI voices have unnaturally uniform phonetic spaces. 
+            # If phonetic variance drops below normal, penalize heavily.
+            phonetic_var = results.get('phonetic_variance', 0.5)
+            robotic_penalty = 0
+            if phonetic_var < 0.2:  # Too perfectly pronounced / flat
+                robotic_penalty += 30
+                
+            # 3. Phone Speaker / Digital Artifact Penalty (from Audio Physics)
+            # A phone playing into a laptop mic creates hiss/distortion (high ZCR)
+            # and unnatural energy curves.
+            zcr = results.get('zcr', 0)
+            energy_std = results.get('energy_std', 0)
+            
+            artifact_penalty = 0
+            if zcr > 0.08: # Natural voice is usually lower. Static/Speaker is high.
+                artifact_penalty += (zcr * 400)
+            if energy_std < 0.005 and zcr > 0.05: # Flat energy + noise = speaker playback
+                artifact_penalty += 40
+                
+            # Final Fusion Score
+            risk_score = int(acoustic_score + robotic_penalty + artifact_penalty)
+            
+            # Ensure normal speech hovers at 10-15
+            if risk_score < 10:
+                risk_score = 10 + int(acoustic_score)
+                
+            risk_score = min(100, risk_score)
             
             # Ensure it doesn't stay perfectly at 0 to show activity
             if risk_score < 3:
