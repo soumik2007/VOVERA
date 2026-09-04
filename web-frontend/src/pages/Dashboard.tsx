@@ -5,7 +5,7 @@ import { DatabaseService } from '../services/DatabaseService';
 import type { ForensicReport } from '../services/DatabaseService';
 
 export default function Dashboard() {
-  const [defenseOn, setDefenseOn] = useState(true);
+  const defenseOn = true; // Shield is now always on by default
   const [recentCalls, setRecentCalls] = useState<ForensicReport[]>([]);
   const [totalScans, setTotalScans] = useState(0);
   const [uptimeSeconds, setUptimeSeconds] = useState(0);
@@ -20,13 +20,9 @@ export default function Dashboard() {
 
   // Live uptime ticker
   useEffect(() => {
-    if (!defenseOn) {
-      setUptimeSeconds(0);
-      return;
-    }
     const timer = setInterval(() => setUptimeSeconds(s => s + 1), 1000);
     return () => clearInterval(timer);
-  }, [defenseOn]);
+  }, []);
 
   const formatUptime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -144,27 +140,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Defense Toggle — live uptime + color change when off */}
-        <div className={`flex items-center justify-between p-5 rounded-xl border transition-all duration-300 ${defenseOn ? 'bg-[#0F1A0F] border-emerald-500/20' : 'bg-[#161B26] border-white/[0.06]'}`}>
-          <div className="flex items-center gap-3.5">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${defenseOn ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#E5C365]/10 text-[#E5C365]'}`}>
-              <span className="material-symbols-outlined text-[20px]">security</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-white">Automated Voice Defense</span>
-              <span className={`text-xs flex items-center gap-1.5 mt-0.5 font-medium ${defenseOn ? 'text-emerald-400' : 'text-red-400'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full inline-block ${defenseOn ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`}></span>
-                {defenseOn ? `Active · ${formatUptime(uptimeSeconds)}` : 'Disabled — calls unprotected'}
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={() => setDefenseOn(!defenseOn)}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${defenseOn ? 'bg-emerald-500' : 'bg-white/10'}`}
-          >
-            <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-all duration-200 mt-0.5 ${defenseOn ? 'translate-x-5.5' : 'translate-x-0.5'}`} />
-          </button>
-        </div>
 
         {/* Recent Calls */}
         <div className="flex flex-col gap-3">
