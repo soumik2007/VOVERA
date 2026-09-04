@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { aiEngine } from '../services/AIEngine';
+import { DatabaseService } from '../services/DatabaseService';
 
 type RiskStatus = 'SAFE' | 'ANALYZING' | 'DANGER';
 
@@ -13,6 +14,33 @@ export default function InCall() {
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [toast, setToast] = useState<{ msg: string; icon: string } | null>(null);
   const [waveform, setWaveform] = useState<number[]>(Array(22).fill(4));
+
+  const handleEndCall = () => {
+    aiEngine.stopAnalysis();
+    
+    // Only save manually if the AI engine hasn't already cut the call and saved it
+    if (riskStatus !== 'DANGER') {
+      const reportId = 'rep_' + Date.now().toString(36);
+      DatabaseService.saveReport({
+        id: reportId,
+        callerNumber: '+1 (415) 890-2134',
+        callerHash: btoa('+1 (415) 890-2134').substring(0, 10),
+        riskScore: riskScore,
+        timestamp: new Date().toISOString(),
+        signals: {
+          spectral_artifacts: Math.min(riskScore * 0.8, 99),
+          pitch_inconsistency: Math.min(riskScore * 0.6, 99),
+          voice_clone_probability: Math.min(riskScore, 99)
+        },
+        reportText: riskScore > 50 
+          ? 'Call ended manually. Audio exhibited moderate anomalies but did not reach the automatic termination threshold.' 
+          : 'Call ended normally. Audio profile was clean with no detected synthetic anomalies.',
+        actionTaken: riskScore > 50 ? 'WARNED' : 'SAFE'
+      });
+    }
+
+    navigate('/');
+  };
 
   const showToast = (msg: string, icon: string) => {
     setToast({ msg, icon });
@@ -159,7 +187,7 @@ export default function InCall() {
               <span className="text-xs font-medium text-white text-center">Speaker</span>
             </button>
           </div>
-          <button onClick={() => { aiEngine.stopAnalysis(); navigate('/'); }}
+          <button onClick={handleEndCall}
             className={`w-full h-14 rounded-2xl active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2.5 shadow-lg transition-all ${
               riskStatus === 'DANGER' ? 'bg-red-700 hover:bg-red-600 shadow-red-700/30' : 'bg-red-600 hover:bg-red-500 shadow-red-600/25'
             }`}>
