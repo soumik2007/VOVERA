@@ -60,9 +60,9 @@ export class LocalAIEngine {
         try {
           const data = JSON.parse(event.data);
           if (data.status === 'success') {
-             // Smooth the score with a rolling average (80% old, 20% new)
-             // This prevents a single weird microphone pop from ending the call instantly.
-             this.currentScore = (this.currentScore * 0.8) + (data.risk_score * 0.2);
+             // Smooth the score with a rolling average (50% old, 50% new)
+             // This speeds up the deepfake catch time to ~3 seconds while still preventing 1-second anomalies.
+             this.currentScore = (this.currentScore * 0.5) + (data.risk_score * 0.5);
              this.latestSignals = data.details || {};
              console.log("[AI Engine] Score Update from PyTorch:", this.currentScore.toFixed(1));
           }
