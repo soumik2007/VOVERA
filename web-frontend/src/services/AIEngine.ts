@@ -60,10 +60,11 @@ export class LocalAIEngine {
         try {
           const data = JSON.parse(event.data);
           if (data.status === 'success') {
-             // Backend successfully analyzed the chunk
-             this.currentScore = Math.max(this.currentScore, data.risk_score);
+             // Smooth the score with a rolling average (80% old, 20% new)
+             // This prevents a single weird microphone pop from ending the call instantly.
+             this.currentScore = (this.currentScore * 0.8) + (data.risk_score * 0.2);
              this.latestSignals = data.details || {};
-             console.log("[AI Engine] Score Update from PyTorch:", this.currentScore);
+             console.log("[AI Engine] Score Update from PyTorch:", this.currentScore.toFixed(1));
           }
         } catch(e) {
           console.error("Failed to parse websocket message", e);
