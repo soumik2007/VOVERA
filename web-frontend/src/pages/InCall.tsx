@@ -30,8 +30,6 @@ export default function InCall() {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [toast, setToast] = useState<{ msg: string; icon: string } | null>(null);
-  
-  const wsRef = useRef<WebSocket | null>(null);
 
   const showToast = (msg: string, icon: string) => {
     setToast({ msg, icon });
@@ -42,46 +40,23 @@ export default function InCall() {
     // 1. Start the call timer
     const timer = setInterval(() => setSeconds(s => s + 1), 1000);
     
-    // 2. Connect to real backend WebSocket
-    const ws = new WebSocket('ws://localhost:8000/api/v1/analyze/ws/stream');
-    wsRef.current = ws;
-    
-    ws.onopen = () => {
-      console.log('Connected to AI Voice Guard stream');
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setRiskScore(data.risk_score || 0);
-        
-        if (data.action === 'CUT_CALL') {
-          setRiskStatus('DANGER');
-          showToast('Deepfake Intercepted — Call Terminated', 'crisis_alert');
-          ws.close();
-          // Wait 2 seconds so user sees the red state, then navigate to forensics
-          setTimeout(() => navigate(`/forensics?id=${data.id}`), 2000);
-        } else if (data.risk_score > 40) {
+    // 2. Start the Local AI Engine
+    aiEngine.startAnalysis(
+      '+1 (415) 890-2134', // Fake caller number for demo
+      (score, signals) => {
+        setRiskScore(score);
+        if (score > 40) {
           setRiskStatus('ANALYZING');
         } else {
           setRiskStatus('SAFE');
         }
-      } catch (err) {
-        console.error("WS Parse error", err);
+      },
+      (reportId) => {
+        setRiskStatus('DANGER');
+        showToast('Deepfake Intercepted — Call Terminated', 'crisis_alert');
+        setTimeout(() => navigate(`/forensics?id=${reportId}`), 2000);
       }
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket Error:', error);
-    };
-
-    // 3. Simulate streaming audio to backend (since we don't have real device mic access in browser)
-    const audioSim = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        // Send a dummy 1KB byte array to simulate audio chunks
-        ws.send(new Uint8Array(1024));
-      }
-    }, 1000); // 1 chunk per second
+    );
 
     return () => {
       clearInterval(timer);
@@ -199,7 +174,7 @@ export default function InCall() {
               <span className="text-xs font-medium text-white text-center">Speaker</span>
             </button>
           </div>
-          <button onClick={() => { wsRef.current?.close(); navigate('/'); }}
+          <button onClick={() => { aiEngine.stopAnalysis(); navigate('/'); }}
             className={`w-full h-14 rounded-2xl active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2.5 shadow-lg transition-all ${
               riskStatus === 'DANGER' ? 'bg-red-700 hover:bg-red-600 shadow-red-700/30' : 'bg-red-600 hover:bg-red-500 shadow-red-600/25'
             }`}>

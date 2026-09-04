@@ -1,45 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
-
-interface ReportData {
-  id: number;
-  caller_hash: string;
-  risk_score: number;
-  signals: string[];
-  report_text: string;
-  created_at: string;
-}
+import { DatabaseService, ForensicReport } from '../services/DatabaseService';
 
 export default function Forensics() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [toast, setToast] = useState<{ title: string; msg: string } | null>(null);
-  const [report, setReport] = useState<ReportData | null>(null);
+  const [report, setReport] = useState<ForensicReport | null>(null);
+  const [allReports, setAllReports] = useState<ForensicReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reportId = searchParams.get('id');
 
   useEffect(() => {
-    if (!reportId) {
-      setLoading(false);
-      return;
+    if (reportId) {
+      const found = DatabaseService.getReportById(reportId);
+      setReport(found);
+    } else {
+      setAllReports(DatabaseService.getAllReports());
     }
-
-    fetch(`http://localhost:8000/api/v1/analyze/report/${reportId}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Report not found");
-        return res.json();
-      })
-      .then(data => {
-        setReport(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    setLoading(false);
   }, [reportId]);
 
   const showToast = (title: string, msg: string) => {
@@ -47,7 +29,7 @@ export default function Forensics() {
     setTimeout(() => setToast(null), 2600);
   };
 
-  const isSafe = report ? report.risk_score < 50 : true;
+  const isSafe = report ? report.riskScore < 50 : true;
 
   return (
     <div className="min-h-screen bg-[#0B0E14] text-white flex flex-col">
@@ -59,40 +41,53 @@ export default function Forensics() {
         </div>
       </header>
 
+      {/* Main Content Area */}
       {loading ? (
-        <div className="flex-1 flex items-center justify-center pt-16 pb-20">
-          <div className="animate-spin w-8 h-8 border-2 border-[#e5c365] border-t-transparent rounded-full"></div>
-        </div>
+        <main className="flex-1 pt-24 pb-28 px-5 max-w-lg mx-auto w-full flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E5C365]"></div>
+        </main>
       ) : !report ? (
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4 pt-16 pb-20">
-          <span className="material-symbols-outlined text-slate-500 text-5xl">find_in_page</span>
-          <p className="text-slate-400">Select a scan from your Dashboard to view forensics.</p>
-          <button onClick={() => navigate('/')} className="px-4 py-2 bg-[#161B26] hover:bg-[#1E2330] border border-white/[0.08] rounded-lg text-sm font-medium transition-colors">Return Home</button>
-        </div>
+        <main className="flex-1 pt-24 pb-28 px-5 max-w-lg mx-auto w-full flex flex-col">
+          <h2 className="text-sm font-semibold text-white mb-4">Local Threat History</h2>
+          {allReports.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
+              <span className="material-symbols-outlined text-4xl text-[#E5C365] mb-3">history</span>
+              <p className="text-sm text-slate-400">No calls have been analyzed yet.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {allReports.map(r => (
+                <Link key={r.id} to={`/forensics?id=${r.id}`} className="p-4 rounded-xl bg-[#141824] border border-white/[0.06] flex items-center justify-between shadow-lg">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{r.callerNumber}</p>
+                    <p className="text-[11px] text-slate-400">{new Date(r.timestamp).toLocaleString()}</p>
+                  </div>
+                  <div className={`px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider ${r.riskScore >= 85 ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                    {r.riskScore >= 85 ? 'BLOCKED' : 'SAFE'}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </main>
       ) : (
         <main className="flex-1 w-full pt-20 pb-28 px-5 flex flex-col space-y-5 max-w-lg mx-auto">
           {/* Incident Bar */}
           <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-2">
-              {!isSafe && (
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                </span>
-              )}
-              <span className="text-[11px] tracking-wider uppercase font-semibold text-slate-400 font-mono">
-                INCIDENT #VOV-{report.id.toString().padStart(4, '0')}
+          <div className="flex items-center justify-between">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141824] border border-white/[0.06] shadow-sm">
+              <span className="material-symbols-outlined text-[16px] text-slate-400">fingerprint</span>
+              <span className="text-[10px] font-mono font-semibold tracking-widest text-slate-300 uppercase">
+                INCIDENT #{report.id.substring(0,8)}
               </span>
             </div>
-            <span className="text-[12px] text-slate-400 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[15px] text-slate-400">schedule</span>
-              {new Date(report.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
+            <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+              {new Date(report.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
           </div>
 
-          {/* Hero Incident Card */}
-          <div className={`relative overflow-hidden rounded-2xl bg-[#141824] border p-5 shadow-xl shadow-black/40 ${isSafe ? 'border-emerald-500/30' : 'border-[#e5c365]/30'}`}>
-            {!isSafe && <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#e5c365]/10 rounded-full blur-3xl pointer-events-none"></div>}
+          {/* Primary Assessment Card */}
+          <div className="relative overflow-hidden rounded-2xl bg-[#141824] border border-white/[0.06] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             {!isSafe && <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>}
             
             <div className="relative flex flex-col space-y-4">
@@ -115,7 +110,7 @@ export default function Forensics() {
               <div className="p-3 rounded-xl bg-[#0B0E14]/60 border border-white/[0.06]">
                 <div className="text-[11px] font-medium text-slate-400 mb-1">AI Copilot Analysis</div>
                 <p className="text-sm font-medium text-white/90 leading-snug">
-                  {report.report_text}
+                  {report.reportText}
                 </p>
               </div>
 
@@ -127,7 +122,7 @@ export default function Forensics() {
                 </div>
                 <div className="text-right">
                   <span className={`text-3xl font-bold tracking-tight font-mono ${isSafe ? 'text-emerald-400' : 'text-[#ffe08d]'}`}>
-                    {report.risk_score.toFixed(1)}%
+                    {report.riskScore.toFixed(1)}%
                   </span>
                   <span className={`block text-[10px] font-semibold uppercase tracking-wider ${isSafe ? 'text-emerald-500' : 'text-red-400'}`}>
                     {isSafe ? 'Safe Match' : 'Synthetic Match'}
@@ -172,7 +167,7 @@ export default function Forensics() {
           </div>
 
           {/* Threat Assessment (Mapped from signals) */}
-          {!isSafe && report.signals && report.signals.length > 0 && (
+          {!isSafe && report.signals && Object.keys(report.signals).length > 0 && (
             <div className="rounded-2xl bg-[#141824] border border-white/[0.06] p-4 space-y-3 shadow-md">
               <div className="flex items-center justify-between pb-1 border-b border-white/[0.04]">
                 <h2 className="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
@@ -180,14 +175,14 @@ export default function Forensics() {
                   Threat Assessment
                 </h2>
               </div>
-              {report.signals.map((sig, i) => (
+              {Object.entries(report.signals).map(([key, val], i) => (
                 <div key={i} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.04] flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[#262932] flex items-center justify-center shrink-0 mt-0.5">
                     <span className="material-symbols-outlined text-[18px] text-red-400">warning</span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">Anomaly Detected</div>
-                    <div className="text-sm font-medium text-white">{sig}</div>
+                    <div className="text-sm font-medium text-white">{key.replace(/_/g, ' ')} ({val}%)</div>
                   </div>
                 </div>
               ))}

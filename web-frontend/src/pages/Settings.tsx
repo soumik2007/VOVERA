@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import BottomNav from '../components/BottomNav';
+import { DatabaseService } from '../services/DatabaseService';
 
 export default function Settings() {
   const [autoDelete, setAutoDelete] = useState(true);
   const [language, setLanguage] = useState('English');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const handleClearHistory = () => {
+    DatabaseService.clearHistory();
+    setShowClearConfirm(false);
+  };
 
   const Toggle = ({ value, onChange }: { value: boolean; onChange: () => void }) => (
     <button onClick={onChange}

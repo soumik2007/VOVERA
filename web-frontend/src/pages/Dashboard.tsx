@@ -1,33 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
-
-interface CallRecord {
-  id: number;
-  caller_hash: string;
-  risk_score: number;
-  created_at: string;
-  is_safe: boolean;
-}
+import { DatabaseService, ForensicReport } from '../services/DatabaseService';
 
 export default function Dashboard() {
   const [defenseOn, setDefenseOn] = useState(true);
-  const [recentCalls, setRecentCalls] = useState<CallRecord[]>([]);
+  const [recentCalls, setRecentCalls] = useState<ForensicReport[]>([]);
   const [totalScans, setTotalScans] = useState(0);
   const [uptimeSeconds, setUptimeSeconds] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch real call history from backend
-    fetch('http://localhost:8000/api/v1/analyze/history')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setRecentCalls(data);
-          setTotalScans(data.length);
-        }
-      })
-      .catch(err => console.error("Failed to fetch history:", err));
+    // Fetch local history from on-device database
+    const data = DatabaseService.getAllReports();
+    setRecentCalls(data);
+    setTotalScans(data.length);
   }, []);
 
   // Live uptime ticker
@@ -203,34 +190,37 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
-              {recentCalls.map(call => (
-                <button
-                  key={call.id}
-                  onClick={() => { if (!call.is_safe) navigate(`/forensics?id=${call.id}`); }}
-                  className={`flex items-center justify-between p-4 rounded-xl bg-[#141824] border border-white/[0.05] transition-all text-left w-full ${!call.is_safe ? 'hover:border-red-500/20 cursor-pointer' : 'cursor-default'}`}
-                >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${call.is_safe ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                      <span className="material-symbols-outlined text-[20px]">{call.is_safe ? 'call' : 'phone_disabled'}</span>
+              {recentCalls.map(call => {
+                const isSafe = call.riskScore < 50;
+                return (
+                  <button
+                    key={call.id}
+                    onClick={() => navigate(`/forensics?id=${call.id}`)}
+                    className={`flex items-center justify-between p-4 rounded-xl bg-[#141824] border border-white/[0.05] transition-all text-left w-full hover:border-white/[0.1] cursor-pointer`}
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${isSafe ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                        <span className="material-symbols-outlined text-[20px]">{isSafe ? 'call' : 'phone_disabled'}</span>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-medium text-white truncate font-mono text-[11px]">{call.callerNumber}</span>
+                        <span className={`inline-flex items-center mt-0.5 px-2 py-0.5 rounded text-[10px] font-medium w-fit ${isSafe ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                          {isSafe ? 'Verified Authentic' : 'AI Impersonation Blocked'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-medium text-white truncate font-mono text-[11px]">{call.caller_hash.substring(0, 12)}...</span>
-                      <span className={`inline-flex items-center mt-0.5 px-2 py-0.5 rounded text-[10px] font-medium w-fit ${call.is_safe ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                        {call.is_safe ? 'Verified Authentic' : 'AI Impersonation Blocked'}
-                      </span>
+                    <div className="flex flex-col items-end shrink-0 pl-2">
+                      <span className="text-xs text-slate-400">{formatTimeAgo(call.timestamp)}</span>
+                      {!isSafe && (
+                        <span className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-0.5">
+                          View Report
+                          <span className="material-symbols-outlined text-[12px]">chevron_right</span>
+                        </span>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end shrink-0 pl-2">
-                    <span className="text-xs text-slate-400">{formatTimeAgo(call.created_at)}</span>
-                    {!call.is_safe && (
-                      <span className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-0.5">
-                        View Report
-                        <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
