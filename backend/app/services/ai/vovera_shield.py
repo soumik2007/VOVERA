@@ -1,6 +1,6 @@
 import torch
 import torchaudio
-from transformers import AutoProcessor, HubertModel, T5Tokenizer, T5ForConditionalGeneration
+from transformers import Wav2Vec2FeatureExtractor, HubertModel, T5Tokenizer, T5ForConditionalGeneration
 from speechbrain.inference.speaker import EncoderClassifier
 import io
 
@@ -13,12 +13,12 @@ class VoveraShield:
         print("[Vovera Shield] Loading ECAPA-TDNN (Acoustic Shield)...")
         self.ecapa = EncoderClassifier.from_hparams(
             source="speechbrain/spkrec-ecapa-voxceleb", 
-            run_opts={"device": self.device}
+            run_opts={"device": str(self.device)}
         )
         
         # 2. Phonetic Layer: HuBERT
         print("[Vovera Shield] Loading HuBERT (Phonetic Shield)...")
-        self.hubert_processor = AutoProcessor.from_pretrained("facebook/hubert-base-ls960")
+        self.hubert_processor = Wav2Vec2FeatureExtractor.from_pretrained("facebook/hubert-base-ls960")
         self.hubert = HubertModel.from_pretrained("facebook/hubert-base-ls960").to(self.device)
         
         # 3. Semantic Layer: FLAN-T5
