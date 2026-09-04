@@ -82,7 +82,9 @@ class VoveraShield:
             'urgent', 'wire transfer', 'crypto', 'gift card', 'medicare',
             'warranty', 'winner', 'lottery', 'free cruise', 'account suspended',
             'unauthorized', 'cancel this charge', 'refund', 'verification code',
-            'otp', 'compromised', 'investigation', 'arrest', 'legal action', 'pin code'
+            'otp', 'compromised', 'investigation', 'arrest', 'legal action', 'pin code',
+            'accident', 'hospital', 'emergency', 'bail money', 'car crash', 
+            'injured', 'jail', 'send money'
         ]
         keyword_flag = any(word in transcript.lower() for word in suspicious_words)
         
