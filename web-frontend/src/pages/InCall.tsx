@@ -4,25 +4,6 @@ import { aiEngine } from '../services/AIEngine';
 
 type RiskStatus = 'SAFE' | 'ANALYZING' | 'DANGER';
 
-const waveBars = [
-  { h: 'h-4', color: 'bg-amber-400/80', delay: '0.1s' },
-  { h: 'h-7', color: 'bg-amber-400/90', delay: '0.3s' },
-  { h: 'h-10', color: 'bg-amber-300', delay: '0.2s' },
-  { h: 'h-6', color: 'bg-amber-400', delay: '0.5s' },
-  { h: 'h-12', color: 'bg-red-400', delay: '0.15s' },
-  { h: 'h-14', color: 'bg-red-500', delay: '0.4s' },
-  { h: 'h-11', color: 'bg-red-500', delay: '0.25s' },
-  { h: 'h-12', color: 'bg-red-400', delay: '0.6s' },
-  { h: 'h-14', color: 'bg-red-500', delay: '0.35s' },
-  { h: 'h-10', color: 'bg-red-400', delay: '0.45s' },
-  { h: 'h-8', color: 'bg-amber-400', delay: '0.2s' },
-  { h: 'h-11', color: 'bg-amber-300', delay: '0.55s' },
-  { h: 'h-7', color: 'bg-amber-400', delay: '0.1s' },
-  { h: 'h-9', color: 'bg-amber-400/80', delay: '0.4s' },
-  { h: 'h-5', color: 'bg-amber-400/60', delay: '0.25s' },
-  { h: 'h-3', color: 'bg-amber-400/50', delay: '0.65s' },
-];
-
 export default function InCall() {
   const navigate = useNavigate();
   const [seconds, setSeconds] = useState(0);
@@ -31,6 +12,7 @@ export default function InCall() {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [toast, setToast] = useState<{ msg: string; icon: string } | null>(null);
+  const [waveform, setWaveform] = useState<number[]>(Array(22).fill(4));
 
   const showToast = (msg: string, icon: string) => {
     setToast({ msg, icon });
@@ -41,11 +23,12 @@ export default function InCall() {
     // 1. Start the call timer
     const timer = setInterval(() => setSeconds(s => s + 1), 1000);
     
-    // 2. Start the Local AI Engine
+    // 2. Start the Local AI Engine with real microphone access
     aiEngine.startAnalysis(
       '+1 (415) 890-2134', // Fake caller number for demo
-      (score: number, signals: any) => {
+      (score: number, signals: any, newWaveform?: number[]) => {
         setRiskScore(score);
+        if (newWaveform) setWaveform(newWaveform);
         if (score > 40) {
           setRiskStatus('ANALYZING');
         } else {
@@ -148,8 +131,12 @@ export default function InCall() {
           {/* Animated Wave */}
           <div className="h-14 rounded-2xl bg-[#131722]/80 border border-[#404756]/30 flex items-end justify-center gap-1 px-4 overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/5 to-transparent pointer-events-none"></div>
-            {waveBars.map((bar, i) => (
-              <div key={i} className={`w-1 ${bar.color} rounded-full ${bar.h} wave-bar`} style={{ animationDelay: bar.delay }} />
+            {waveform.map((h, i) => (
+              <div 
+                key={i} 
+                className={`w-1 rounded-full ${riskStatus === 'DANGER' ? 'bg-red-500' : riskStatus === 'ANALYZING' ? 'bg-amber-400' : 'bg-emerald-400'}`} 
+                style={{ height: `${h * 1.5}px`, minHeight: '4px', transition: 'height 0.05s linear' }} 
+              />
             ))}
           </div>
         </section>
