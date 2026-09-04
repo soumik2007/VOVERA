@@ -85,7 +85,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json({"error": "AI models still loading..."})
                     continue
                     
-                audio_np = np.frombuffer(data, dtype=np.float32)
+                audio_np = np.frombuffer(data, dtype=np.float32).copy()
                 audio_tensor = torch.from_numpy(audio_np).unsqueeze(0)
                 
                 results = shield.analyze_audio_chunk(audio_tensor, sample_rate=16000)
@@ -127,13 +127,17 @@ async def websocket_endpoint(websocket: WebSocket):
                     
                 risk_score = min(100, risk_score)
                 
-                await websocket.send_json({
-                    "status": "success",
-                    "risk_score": risk_score,
-                    "scam_intent": scam_intent_active,
-                    "transcript": last_transcript,
-                    "details": results
-                })
+                try:
+                    await websocket.send_json({
+                        "status": "success",
+                        "risk_score": risk_score,
+                        "scam_intent": scam_intent_active,
+                        "transcript": last_transcript,
+                        "details": results
+                    })
+                except RuntimeError:
+                    # Occurs if the client closed the connection while we were processing
+                    break
     except WebSocketDisconnect:
         print("UI disconnected from Audio Stream.")
     except Exception as e:
