@@ -73,6 +73,14 @@ export class LocalAIEngine {
                this.ws.send(JSON.stringify({ type: "transcript", text: transcript.trim() }));
            }
         };
+        
+        // Chrome's Speech API silently stops after a few seconds of silence. We MUST force it to restart.
+        this.recognition.onend = () => {
+            if (this.analyzing) {
+                try { this.recognition.start(); } catch(e) {}
+            }
+        };
+        
         this.recognition.start();
       }
 

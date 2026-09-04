@@ -77,7 +77,13 @@ class VoveraShield:
         answer = self.t5_tokenizer.decode(outputs[0], skip_special_tokens=True).strip().lower()
         
         # We also do a quick keyword check since flan-t5-small is very tiny and might miss obvious ones
-        suspicious_words = ['social security', 'password', 'bank', 'credit card', 'irs', 'urgent', 'wire transfer', 'crypto', 'gift card']
+        suspicious_words = [
+            'social security', 'password', 'bank', 'credit card', 'irs', 
+            'urgent', 'wire transfer', 'crypto', 'gift card', 'medicare',
+            'warranty', 'winner', 'lottery', 'free cruise', 'account suspended',
+            'unauthorized', 'cancel this charge', 'refund', 'verification code',
+            'otp', 'compromised', 'investigation', 'arrest', 'legal action', 'pin code'
+        ]
         keyword_flag = any(word in transcript.lower() for word in suspicious_words)
         
         return {
