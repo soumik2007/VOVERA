@@ -8,7 +8,6 @@ export default function Dashboard() {
   const defenseOn = true; // Shield is now always on by default
   const [recentCalls, setRecentCalls] = useState<ForensicReport[]>([]);
   const [totalScans, setTotalScans] = useState(0);
-  const [uptimeSeconds, setUptimeSeconds] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,21 +16,6 @@ export default function Dashboard() {
     setRecentCalls(data);
     setTotalScans(data.length);
   }, []);
-
-  // Live uptime ticker
-  useEffect(() => {
-    const timer = setInterval(() => setUptimeSeconds(s => s + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatUptime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    if (h > 0) return `${h}h ${m}m ${s}s`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-  };
 
   const formatTimeAgo = (dateStr: string) => {
     const diff = Math.floor((new Date().getTime() - new Date(dateStr).getTime()) / 60000);
@@ -112,13 +96,6 @@ export default function Dashboard() {
             <h1 className="text-xl font-semibold text-white tracking-tight mt-1">Voice Shield Active</h1>
             <p className="text-xs text-slate-400 mt-1 max-w-[220px]">Real-time neural synthesis detection defending your calls</p>
 
-            {/* Live uptime indicator */}
-            {defenseOn && (
-              <div className="mt-3 flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                Monitoring for {formatUptime(uptimeSeconds)}
-              </div>
-            )}
 
             {/* Metrics with context */}
             <div className="grid grid-cols-2 gap-4 w-full mt-6 pt-5 border-t border-white/[0.06]">
