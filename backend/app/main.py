@@ -91,42 +91,40 @@ async def websocket_endpoint(websocket: WebSocket):
                 results = shield.analyze_audio_chunk(audio_tensor, sample_rate=16000)
                 
                 # 1. Baseline Human Score (from ECAPA-TDNN)
-                # Raw variance fluctuates too wildly depending on the person's pitch and mic distance.
-                # We will clamp the baseline to a safe 5-15 range, and rely on the Deepfake Penalties to catch threats.
                 raw_var = abs(results.get('acoustic_variance', 0))
-                acoustic_score = (raw_var % 10) + 5 # Creates a natural 'breathing' jitter between 5 and 14
+                base_score = (raw_var % 10) + 5 # 5 to 14
                 
-                # 2. Robotic Phonetic Penalty (from HuBERT)
+                # 2. Extract Acoustic/Phonetic Features
                 phonetic_var = results.get('phonetic_variance', 0.5)
-                robotic_penalty = 0
-                if phonetic_var < 0.1: # Increased from 0.05 to catch expressive AI
-                    robotic_penalty += 50
-                    
-                # 3. Digital Artifact Penalty
-                zcr = results.get('zcr', 0)
-                energy_std = results.get('energy_std', 0)
-                artifact_penalty = 0
-                if zcr > 0.12: # Phone speaker threshold
-                    artifact_penalty += 50
-                if energy_std < 0.005 and zcr > 0.08:
-                    artifact_penalty += 40
-                    
-                # The "Robot Probability"
-                robot_risk = int(acoustic_score + robotic_penalty + artifact_penalty)
+                zcr = results.get('zcr', 0.0)
+                energy_std = results.get('energy_std', 0.01)
+                
+                # 3. Continuous Anomaly Scaling (No more harsh +50 jumps!)
+                # Humans have high phonetic variance (expressive) and dynamic energy (breathing).
+                # AI TTS is mathematically uniform (low variance) and highly compressed (low energy std).
+                
+                phonetic_anomaly = max(0, 0.15 - phonetic_var) * 200  # Scales 0 to 30
+                energy_anomaly = max(0, 0.01 - energy_std) * 3000     # Scales 0 to 30
+                
+                # Laptop mics naturally have high ZCR (static). 
+                # We only heavily penalize extreme ZCR (> 0.25) which indicates a physical phone speaker playback.
+                speaker_anomaly = max(0, zcr - 0.25) * 100            # Scales 0 to ~20
+                
+                robot_risk = int(base_score + phonetic_anomaly + energy_anomaly + speaker_anomaly)
                 
                 # --- MULTI-MODAL FUSION DECISION ---
-                if robot_risk >= 80:
-                    if scam_intent_active:
-                        # It is a robot AND the transcript is a scam -> TERMINATE
-                        risk_score = 100
-                    else:
-                        # It is a robot, BUT the conversation is safe (e.g. Pharmacy) -> WARNING
-                        risk_score = 75
+                # Acoustic layers can only warn up to 80% to prevent false positives on bad microphones.
+                # ONLY the Semantic layer (FLAN-T5) can push it to 100% and terminate the call.
+                
+                robot_risk = min(80, robot_risk)
+                
+                if scam_intent_active:
+                    risk_score = max(96, robot_risk + 40) # Instant Termination!
                 else:
-                    risk_score = robot_risk
+                    risk_score = robot_risk # Safe or Warning zone
                     
                 if risk_score < 10:
-                    risk_score = 10 + int(acoustic_score)
+                    risk_score = 10 + int(base_score)
                     
                 risk_score = min(100, risk_score)
                 
