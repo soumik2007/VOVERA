@@ -58,6 +58,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         scam_intent_active = False
         last_transcript = ""
+        current_robot_risk = 0 # Cascade level 1 state
 
         while True:
             message = await websocket.receive()
@@ -71,9 +72,15 @@ async def websocket_endpoint(websocket: WebSocket):
                         transcript_text = payload.get("text", "")
                         if len(transcript_text.strip()) > 5:
                             last_transcript = transcript_text
-                            semantic_res = shield.analyze_transcript(transcript_text)
-                            scam_intent_active = semantic_res.get("scam_intent_detected", False)
-                            print(f"[Semantic] '{transcript_text}' -> Scam: {scam_intent_active}")
+                            
+                            # LEVEL 1 GATE: Only run NLP if Acoustic Layer flags it as a robot!
+                            if current_robot_risk > 55:
+                                semantic_res = shield.analyze_transcript(transcript_text)
+                                scam_intent_active = semantic_res.get("scam_intent_detected", False)
+                                print(f"[Semantic Level 2] '{transcript_text}' -> Scam: {scam_intent_active}")
+                            else:
+                                scam_intent_active = False
+                                print(f"[Semantic Skipped] Acoustic risk {current_robot_risk}% is too low to trigger NLP.")
                 except Exception as e:
                     print(f"Error parsing text payload: {e}")
                 continue
@@ -111,6 +118,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 speaker_anomaly = max(0, zcr - 0.25) * 100            # Scales 0 to ~20
                 
                 robot_risk = int(base_score + phonetic_anomaly + energy_anomaly + speaker_anomaly)
+                current_robot_risk = robot_risk # Update the cascade gate state
                 
                 # --- MULTI-MODAL FUSION DECISION ---
                 # Acoustic layers can only warn up to 80% to prevent false positives on bad microphones.
